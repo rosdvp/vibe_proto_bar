@@ -1,0 +1,117 @@
+.hold-controls {
+  position: absolute;
+  z-index: 38;
+  left: 50%;
+  bottom: 124px;
+  width: 112px;
+  height: 78px;
+  transform: translateX(-50%);
+}
+
+.hold-button {
+  position: absolute;
+  inset: 0;
+  border: 4px solid #45ad61;
+  border-radius: 6px;
+  background: #dcefe1;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.05;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.hold-button strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 31px;
+  line-height: .9;
+}
+
+.hold-button.pressed { background: #c2e6cb; }
+.hold-energy {
+  position: absolute;
+  z-index: -1;
+  right: calc(100% - 1px);
+  top: 36px;
+  width: 106px;
+  height: 25px;
+  color: var(--orange);
+}
+
+.hold-energy::before {
+  content: "";
+  position: absolute;
+  inset: 2px 0 2px 16px;
+  border: 4px solid currentColor;
+  border-radius: 4px;
+  background: linear-gradient(to left, #f8cc8c var(--energy-progress), var(--paper) var(--energy-progress));
+}
+
+.hold-energy i {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: -5px;
+  width: 35px;
+  height: 35px;
+  border: 4px solid currentColor;
+  border-radius: 50%;
+  background: var(--paper);
+}
+
+.hold-energy strong {
+  position: absolute;
+  z-index: 1;
+  inset: 0 0 0 31px;
+  display: grid;
+  place-items: center;
+  color: var(--line);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.hold-overheat {
+  position: absolute;
+  left: 50%;
+  bottom: 51px;
+  width: 320px;
+  height: 132px;
+  transform: translateX(-50%);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.hold-overheat-outline,
+.hold-overheat-empty,
+.hold-overheat-fill {
+  fill: none;
+}
+
+.hold-overheat-outline {
+  stroke: var(--orange);
+  stroke-width: 32;
+}
+
+.hold-overheat-empty {
+  stroke: var(--paper);
+  stroke-width: 24;
+}
+
+.hold-overheat-fill {
+  stroke: #f8b044;
+  stroke-width: 24;
+  stroke-dasharray: var(--heat-progress) 100;
+  stroke-linecap: butt;
+}
+
+.hold-overheat.cooldown .hold-overheat-fill { stroke: var(--red); }
+
+.hold-vignette {
+  position: absolute;
+  z-index: 100;
+  inset: 82px 0 0;
+  box-shadow: inset 0 0 42px 14px rgb(65 156 235 / 78%);
+  pointer-events: none;
+}

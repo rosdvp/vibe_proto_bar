@@ -1,0 +1,106 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "model": "openai/gpt-5.6-sol",
+  "small_model": "openai/gpt-5.6-luna",
+  "default_agent": "build",
+
+  "subagent_depth": 1,
+
+  "compaction": {
+    "auto": true,
+    "prune": true
+  },
+
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      "dist/**",
+      "coverage/**",
+      ".git/**"
+    ]
+  },
+
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "model": "openai/gpt-5.6-sol",
+      "reasoningEffort": "low",
+      "textVerbosity": "low",
+
+      "permission": {
+        "task": {
+          "*": "deny",
+          "explore": "allow",
+          "reviewer": "allow"
+        }
+      }
+    },
+
+    "build-medium": {
+      "description": "Основной агент для сложных игровых механик, архитектурных изменений и трудных задач",
+      "mode": "primary",
+      "model": "openai/gpt-5.6-sol",
+      "reasoningEffort": "medium",
+      "textVerbosity": "low",
+
+      "permission": {
+        "task": {
+          "*": "deny",
+          "explore": "allow",
+          "reviewer": "allow"
+        }
+      }
+    },
+
+    "explore": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-luna",
+      "reasoningEffort": "low",
+      "textVerbosity": "low",
+      "steps": 6,
+
+      "permission": {
+        "edit": "deny",
+        "task": "deny",
+        "bash": "deny",
+        "external_directory": "deny",
+        "webfetch": "deny",
+        "websearch": "deny"
+      }
+    },
+
+    "reviewer": {
+      "description": "Проверяет рискованные изменения на реальные ошибки, регрессии, проблемы интеграции и пропущенные граничные случаи",
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-terra",
+      "reasoningEffort": "low",
+      "textVerbosity": "low",
+      "steps": 7,
+
+      "prompt": "Проверь реализацию на корректность. Ищи только реальные ошибки, регрессии, проблемы интеграции, граничные случаи и недостаточную проверку результата. Не придирайся к стилю, если он не создаёт практической проблемы. Не изменяй файлы. Отвечай кратко и только по-русски. Если существенных проблем нет, сообщи об этом кратко.",
+
+      "permission": {
+        "edit": "deny",
+        "task": "deny",
+        "external_directory": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+
+        "bash": {
+          "*": "deny",
+          "git diff*": "allow",
+          "git status*": "allow"
+        }
+      }
+    },
+
+    "plan": {
+      "disable": true
+    },
+
+    "general": {
+      "disable": true
+    }
+  }
+}

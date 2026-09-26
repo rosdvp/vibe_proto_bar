@@ -1,0 +1,85 @@
+{
+  "parameters": {
+    "startingMoney": 100,
+    "researchCost": 300,
+    "researchDuration": 30,
+    "serviceMoneyGrant": 1000,
+    "buildCost": 100,
+    "upgradeCost": 20,
+    "upgradeCostIncrease": 10,
+    "orderPriceBonusPercentPerLevel": 2,
+    "workSpeedBonusPercentPerLevel": 2,
+    "ratingPerLevel": 1,
+    "maxCellLevel": 30,
+    "characterMoveSpeed": 150,
+    "listenDuration": 5,
+    "pourDuration": 5,
+    "drinkDuration": 30,
+    "customerRatePoints": [
+      { "rating": 0, "customersPerMinute": 2 },
+      { "rating": 4, "customersPerMinute": 5 },
+      { "rating": 8, "customersPerMinute": 6 },
+      { "rating": 40, "customersPerMinute": 15 },
+      { "rating": 100, "customersPerMinute": 20 }
+    ],
+    "customerWaitingTimeout": 60,
+    "customerWaitingMoveSpeed": 25,
+    "holdEnergyCapacity": 300,
+    "holdEnergySpendTick": 0.1,
+    "holdEnergyRechargeAmount": 1,
+    "holdEnergyRechargeInterval": 5,
+    "holdTimeMultiplier": 10,
+    "holdOverheatDuration": 7,
+    "holdCooldownDuration": 5,
+    "counterCapacity": 3,
+    "tableCapacity": 2,
+    "kegSlotsPerTap": 1
+  },
+  "drinks": [
+    { "id": "mash", "name": "Бормотуха", "category": "keg", "rating": 1, "price": 5 },
+    { "id": "lager", "name": "Лагер", "category": "keg", "rating": 2, "price": 7, "locked": true },
+    { "id": "red-ale", "name": "Красный эль", "category": "keg", "rating": 3, "price": 10, "locked": true }
+  ],
+  "customerTypes": [
+    {
+      "id": "sailors", "name": "Матросы", "arrivalWeight": 3,
+      "qualityRequirements": [],
+      "drinkRequirements": [{ "kind": "rating", "category": "keg", "min": 1, "max": 2 }],
+      "priorityActivity": "counter"
+    },
+    {
+      "id": "clerks", "name": "Клерки", "arrivalWeight": 1,
+      "qualityRequirements": [{ "cellType": "table", "minimum": 0 }],
+      "drinkRequirements": [{ "kind": "specific", "drinkId": "lager" }],
+      "mandatoryActivity": "table"
+    },
+    {
+      "id": "irish", "name": "Ирландцы", "arrivalWeight": 1,
+      "qualityRequirements": [{ "cellType": "counter", "minimum": 64.28571428571429 }],
+      "drinkRequirements": [{ "kind": "specific", "drinkId": "red-ale" }],
+      "priorityActivity": "counter"
+    }
+  ],
+  "quests": [
+    { "id": "build-counter", "title": "Построй стойку со стульями", "target": 1, "reward": 100, "condition": { "kind": "cell-count", "cellType": "counter" }, "unlocks": [{ "kind": "cell-type", "id": "taps", "name": "Кран" }] },
+    { "id": "build-taps", "title": "Построй кран", "target": 1, "reward": 10, "condition": { "kind": "cell-count", "cellType": "taps" }, "unlocks": [{ "kind": "other", "id": "menu-screen", "name": "Меню" }] },
+    { "id": "add-mash", "title": "Добавь бормотуху в меню", "target": 1, "reward": 10, "condition": { "kind": "menu-item", "drinkId": "mash" } },
+    { "id": "serve-sailors", "title": "Обслужи матросов", "target": 2, "reward": 70, "condition": { "kind": "served", "customerTypeId": "sailors" } },
+    { "id": "upgrade-counter", "title": "Прокачай стойку со стульями", "target": 3, "reward": 10, "condition": { "kind": "cell-level", "cellType": "counter" }, "unlocks": [{ "kind": "other", "id": "hold", "name": "Ускорение времени" }] },
+    { "id": "use-hold", "title": "Ускоряй время", "target": 10, "reward": 40, "condition": { "kind": "hold-seconds" } },
+    { "id": "upgrade-taps", "title": "Прокачай кран", "target": 3, "reward": 10, "condition": { "kind": "cell-level", "cellType": "taps" } },
+    { "id": "use-hold-again", "title": "Ускоряй время", "target": 10, "reward": 70, "condition": { "kind": "hold-seconds" } },
+    { "id": "build-second-counter", "title": "Построй 2 стойки со стульями", "target": 2, "reward": 10, "condition": { "kind": "cell-count", "cellType": "counter" } },
+    { "id": "reach-rating-eight", "title": "Повысь рейтинг до 8", "target": 8, "reward": 30, "condition": { "kind": "bar-rating" } },
+    { "id": "build-second-tap", "title": "Построй 2 крана", "target": 2, "reward": 30, "condition": { "kind": "cell-count", "cellType": "taps" }, "unlocks": [{ "kind": "menu-item", "id": "lager", "name": "Лагер" }] },
+    { "id": "sell-lager", "title": "Продай Лагер 5 раз", "target": 5, "reward": 30, "condition": { "kind": "drink-sales", "drinkId": "lager" } },
+    { "id": "earn-money", "title": "Заработай 200 денег", "target": 200, "reward": 10, "condition": { "kind": "earned-money" }, "unlocks": [{ "kind": "other", "id": "customers-screen", "name": "Экран клиентов" }] },
+    { "id": "explore-customers", "title": "Изучи экран клиентов", "target": 1, "reward": 10, "condition": { "kind": "screen-open", "screenId": "customers" }, "unlocks": [{ "kind": "other", "id": "research-screen", "name": "Исследования" }] },
+    { "id": "research-tables", "title": "Исследуй «Столики»", "target": 1, "reward": 50, "condition": { "kind": "research-completed", "researchId": "tables" }, "unlocks": [{ "kind": "cell-type", "id": "stairs", "name": "Лестница" }] },
+    { "id": "build-stairs", "title": "Построй лестницу", "target": 1, "reward": 10, "condition": { "kind": "cell-count", "cellType": "stairs", "floor": -1 } },
+    { "id": "build-second-floor-table", "title": "Построй столик на втором этаже", "target": 1, "reward": 50, "condition": { "kind": "cell-count", "cellType": "table", "floor": -1 } },
+    { "id": "build-second-floor-waiter-station", "title": "Построй стойку официанта на втором этаже", "target": 1, "reward": 50, "condition": { "kind": "cell-count", "cellType": "waiter-station", "floor": -1 } },
+    { "id": "build-second-floor-taps", "title": "Построй кран на втором этаже", "target": 1, "reward": 50, "condition": { "kind": "cell-count", "cellType": "taps", "floor": -1 } },
+    { "id": "serve-clerks", "title": "Обслужи 10 клерков", "target": 10, "reward": 50, "condition": { "kind": "served", "customerTypeId": "clerks" } }
+  ]
+}
