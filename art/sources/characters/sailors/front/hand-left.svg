@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" width="23" height="23" viewBox="0 0 23 23" data-anchor="bottom-center">
+  <g id="artwork" transform="matrix(0.18253968253968253 0 0 0.18253968253968253 11.5 11.5)">
+<defs>
+    <linearGradient id="jacket" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#475b74" />
+      <stop offset=".5" stop-color="#34445c" />
+      <stop offset="1" stop-color="#283449" />
+    </linearGradient>
+    <linearGradient id="cap" x1="0" y1="0" x2=".8" y2="1">
+      <stop stop-color="#53637a" />
+      <stop offset="1" stop-color="#293343" />
+    </linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2=".7" y2="1">
+      <stop stop-color="#ffc47c" />
+      <stop offset="1" stop-color="#e9a05c" />
+    </linearGradient>
+    <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#dca954" />
+      <stop offset=".55" stop-color="#f1c779" />
+      <stop offset="1" stop-color="#be914e" />
+    </linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#382b20" />
+      <stop offset="1" stop-color="#241c18" />
+    </linearGradient>
+    <g id="palm" stroke="#090807" stroke-width="13">
+      <circle r="55" fill="url(#skin)" />
+      <path d="M-49 15 Q0 62 49 15 A51 51 0 0 1-49 15Z" fill="#e9a05d" stroke="none" />
+    </g>
+    <g id="ear">
+      <ellipse rx="29" ry="44" fill="url(#skin)" stroke="#090807" stroke-width="14" />
+      <ellipse cx="5" cy="5" rx="12" ry="28" fill="#d69150" />
+    </g>
+    <g id="eye" stroke="none">
+      <ellipse cy="18" rx="39" ry="39" fill="#cc8d50" />
+      <path d="M-26 5 H26 V15 A26 26 0 0 1-26 15Z" fill="#080807" />
+      <rect x="-45" y="-16" width="90" height="23" rx="2" fill="#080807" />
+    </g>
+    <g id="body" stroke="#090807" stroke-width="15" stroke-linejoin="round">
+      <path d="M-160 118 V-164 Q-157-246-108-287 Q-57-325 0-325 Q57-325 108-287 Q157-246 160-164 V118 Q160 212 75 220 H-75 Q-160 212-160 118Z" fill="url(#jacket)" />
+      <path d="M-142-178 Q-141-245-110-270 Q-141-150-139 123 Q-137 180-105 198 Q-144 187-145 121Z" fill="#586c86" opacity=".45" stroke="none" />
+      <path d="M139-185 Q154-90 151 120 Q150 185 108 200 Q124 125 124-170Z" fill="#718097" opacity=".2" stroke="none" />
+    </g>
+  </defs>
+  <use href="#palm" />
+  </g>
+</svg>

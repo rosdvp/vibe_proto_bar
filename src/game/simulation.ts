@@ -1,4 +1,4 @@
-import { CONFIG, CUSTOMER_TYPES, DRINKS } from "../config";
+import { CONFIG, CUSTOMER_TYPES } from "../config";
 import { cellWidth, movementDuration } from "../geometry";
 import type {
   ActivityType,
@@ -12,7 +12,8 @@ import type {
   Waiter,
 } from "../types";
 import { findRoute } from "./navigation";
-import { chooseOrderId, isCustomerTypeUnlocked, reconcileStaffRooms, resetBartender, resetWaiter } from "./progression";
+import { chooseOrderId, reconcileStaffRooms, resetBartender, resetWaiter } from "./progression";
+import { customerRate, orderPrice, totalCustomerRate } from "./economy";
 import { recordCustomerPayment, recordActivityIncome } from "./quests";
 import {
   cellCapacity,
@@ -21,11 +22,8 @@ import {
   getCell,
   getCustomerType,
   getDrink,
-  barRating,
-  customersPerMinute,
   cellsShareRoom,
   cellsInRoom,
-  tapCapacity,
   equipmentIssue,
   extraUsePrice,
 } from "./selectors";
@@ -36,12 +34,6 @@ const MOVING_CUSTOMER_PHASES = new Set<CustomerPhase>([
   "moving-extra",
   "exiting",
 ]);
-
-interface TapAssignment {
-  cell: Cell;
-  slot: number;
-  drinkId: string;
-}
 
 function occupiedSlots(state: GameState, cellId: string, phases: CustomerPhase[]): Set<number> {
   return new Set(
@@ -107,23 +99,6 @@ function chooseCell(
   return selected ? { cell: selected.cell, slot: selected.slot } : null;
 }
 
-function tapAssignments(state: GameState): TapAssignment[] {
-  const assignments: TapAssignment[] = [];
-  const taps = state.cells.filter((cell) => cell.type === "taps").sort((a, b) => a.y - b.y || a.x - b.x);
-  for (const category of ["keg", "bottle"] as const) {
-    const drinks = state.menu.filter((id) => getDrink(id)?.category === category);
-    let drinkIndex = 0;
-    for (const cell of taps) {
-      const count = tapCapacity(cell, category);
-      for (let slot = 0; slot < count && drinkIndex < drinks.length; slot += 1) {
-        const drinkId = drinks[drinkIndex++];
-        if (drinkId) assignments.push({ cell, slot: category === "keg" ? slot : tapCapacity(cell, "keg") + slot, drinkId });
-      }
-    }
-  }
-  return assignments;
-}
-
 function tapBusy(state: GameState, cellId: string): boolean {
   return state.bartenders.some(
     (bartender) =>
@@ -132,8 +107,15 @@ function tapBusy(state: GameState, cellId: string): boolean {
   );
 }
 
-function serviceLocalX(cell: Cell, slot: number | null): number {
-  return seatLocalX(cell, slot);
+function serviceLocalX(state: GameState, bartender: Bartender, cell: Cell, slot: number | null): number {
+  const capacity = cellCapacity(cell);
+  if (cell.type !== "counter" || slot === null || capacity < 2) return seatLocalX(cell, slot);
+  const points = [slot, slot + 1].filter((gap) => gap > 0 && gap < capacity).map((gap) => gap / capacity);
+  return points.reduce((nearest, point) =>
+    movementDuration(state, bartender.x, bartender.y, cell.x, cell.y, bartender.localX ?? .5, point)
+      < movementDuration(state, bartender.x, bartender.y, cell.x, cell.y, bartender.localX ?? .5, nearest)
+      ? point : nearest,
+  );
 }
 
 function routeDistance(state: GameState, fromX: number, fromY: number, targetX: number, targetY: number): number {
@@ -257,31 +239,25 @@ function activityHasFreePlace(state: GameState, activity: ActivityType): boolean
 
 function chooseActivity(
   state: GameState,
-  mandatory: ActivityType | undefined,
-  priority: ActivityType | undefined,
   random: RandomSource,
 ): ActivityType | null {
   const available: ActivityType[] = [];
   if (state.cells.some((cell) => cell.type === "counter")) available.push("counter");
   if (state.cells.some((cell) => cell.type === "table") && state.cells.some((cell) => cell.type === "waiter-station")) available.push("table");
-  if (mandatory) return mandatory;
-  if (priority && available.includes(priority) && activityHasFreePlace(state, priority)) return priority;
   const free = available.filter((activity) => activityHasFreePlace(state, activity));
-  const alternatives = priority ? available.filter((activity) => activity !== priority) : available;
-  const freeAlternatives = free.filter((activity) => activity !== priority);
-  const choices = freeAlternatives.length > 0 ? freeAlternatives : alternatives.length > 0 ? alternatives : available;
+  const choices = free.length > 0 ? free : available;
   if (choices.length === 0) return null;
   const minimum = Math.min(...choices.map((activity) => activityWaiting(state, activity)));
   const leastBusy = choices.filter((activity) => activityWaiting(state, activity) === minimum);
   return leastBusy[Math.floor(random() * leastBusy.length)] ?? leastBusy[0] ?? null;
 }
 
-function spawnCustomer(state: GameState, typeId: string, random: RandomSource): boolean {
+function spawnCustomer(state: GameState, typeId: string, random: RandomSource, isPrize = false): boolean {
   const type = getCustomerType(typeId);
   if (!type) return false;
   const orderId = chooseOrderId(state, type, random);
-  const activity = chooseActivity(state, type.mandatoryActivity, type.priorityActivity, random);
-  if (!orderId) return false;
+  const activity = orderId ? chooseActivity(state, random) : null;
+  if (!orderId && !isPrize) return false;
   const customer: Customer = {
     id: `customer-${state.nextEntityId++}`,
     typeId,
@@ -302,7 +278,8 @@ function spawnCustomer(state: GameState, typeId: string, random: RandomSource): 
     activity,
     targetCellId: null,
     slotIndex: null,
-    orderId,
+    orderId: orderId ?? "",
+    ...(isPrize ? { isPrize: true } : {}),
     orderTapCellId: null,
     bartenderId: null,
     waiterId: null,
@@ -318,6 +295,12 @@ function spawnCustomer(state: GameState, typeId: string, random: RandomSource): 
   } else if (activity === "counter") {
     const target = chooseCell(state, "counter", 0, 0, random);
     if (!target) {
+      if (isPrize) {
+        customer.phase = "waiting-activity";
+        customer.activity = null;
+        customer.targetCellId = "cell-0";
+        return true;
+      }
       state.customers.pop();
       return false;
     }
@@ -338,73 +321,83 @@ function spawnCustomer(state: GameState, typeId: string, random: RandomSource): 
   return true;
 }
 
-export function customerArrivalInterval(rating: number): number {
-  return 60 / customersPerMinute(rating);
+export function customerArrivalInterval(state: GameState): number {
+  const rate = totalCustomerRate(state);
+  return rate > 0 ? 60 / rate : Infinity;
 }
 
-export function nextCustomerRateMilestone(rating: number): { ratingRemaining: number; customersPerMinute: number; isMaximum: boolean } {
-  const maximumRating = CONFIG.customerRatePoints[CONFIG.customerRatePoints.length - 1]!.rating;
-  const boundedRating = Math.min(maximumRating, Math.max(0, rating));
-  const currentRate = customersPerMinute(boundedRating);
-  const maximumRate = customersPerMinute(maximumRating);
-  if (currentRate >= maximumRate) {
-    return { ratingRemaining: 0, customersPerMinute: Math.floor(maximumRate), isMaximum: true };
-  }
-
-  const nextRate = Math.floor(currentRate + Number.EPSILON) + 1;
-  let ratingForNextRate: number = maximumRating;
-  for (let candidate = Math.floor(boundedRating) + 1; candidate <= maximumRating; candidate += 1) {
-    if (customersPerMinute(candidate) + Number.EPSILON >= nextRate) {
-      ratingForNextRate = candidate;
-      break;
-    }
-  }
-  return {
-    ratingRemaining: ratingForNextRate - boundedRating,
-    customersPerMinute: nextRate,
-    isMaximum: false,
-  };
+export function spawnPrizeCustomers(state: GameState, typeId: string, count: number, random: RandomSource = Math.random): void {
+  for (let index = 0; index < count; index++) spawnCustomer(state, typeId, random, true);
 }
 
 export function customerArrivalChances(state: GameState): Record<string, number> {
-  const eligibleTypes = CUSTOMER_TYPES.filter((type) => isCustomerTypeUnlocked(state, type));
-  const totalWeight = eligibleTypes.reduce((sum, type) => sum + type.arrivalWeight, 0);
+  const totalWeight = totalCustomerRate(state);
   return Object.fromEntries(CUSTOMER_TYPES.map((type) => [
     type.id,
-    totalWeight > 0 && eligibleTypes.includes(type) ? type.arrivalWeight / totalWeight : 0,
+    totalWeight > 0 ? customerRate(state, type) / totalWeight : 0,
   ]));
 }
 
+function fillArrivalBag(state: GameState, random: RandomSource): void {
+  const added: string[] = [];
+  for (const type of CUSTOMER_TYPES) {
+    const accrued = (state.arrivalTypeCarry[type.id] ?? 0) + customerRate(state, type);
+    const count = Math.floor(accrued + 1e-9);
+    state.arrivalTypeCarry[type.id] = accrued - count;
+    for (let index = 0; index < count; index += 1) added.push(type.id);
+  }
+  for (let index = added.length - 1; index > 0; index -= 1) {
+    const other = Math.floor(random() * (index + 1));
+    [added[index], added[other]] = [added[other]!, added[index]!];
+  }
+  state.arrivalTypeBag.push(...added);
+}
+
 function trySpawnArrivingCustomer(state: GameState, random: RandomSource): void {
-  const eligibleTypes = CUSTOMER_TYPES.filter((type) => isCustomerTypeUnlocked(state, type));
-  if (eligibleTypes.length === 0) return;
-  const totalWeight = eligibleTypes.reduce((sum, type) => sum + type.arrivalWeight, 0);
-  let roll = random() * totalWeight;
-  const selected = eligibleTypes.find((type) => {
-    roll -= type.arrivalWeight;
-    return roll < 0;
-  }) ?? eligibleTypes[eligibleTypes.length - 1];
-  if (selected) spawnCustomer(state, selected.id, random);
+  let selected = state.arrivalTypeBag.shift();
+  if (!selected) {
+    const active = CUSTOMER_TYPES.filter((type) => customerRate(state, type) > 0);
+    const weights = active.map((type) => Math.max(0, state.arrivalTypeCarry[type.id] ?? 0));
+    const total = weights.reduce((sum, weight) => sum + weight, 0);
+    let roll = random() * (total > 0 ? total : active.length);
+    selected = active.find((type, index) => {
+      roll -= total > 0 ? weights[index]! : 1;
+      return roll < 0;
+    })?.id ?? active[active.length - 1]?.id;
+    if (selected) state.arrivalTypeCarry[selected] = (state.arrivalTypeCarry[selected] ?? 0) - 1;
+  }
+  if (selected) spawnCustomer(state, selected, random);
 }
 
 function advanceCustomerArrivals(state: GameState, seconds: number, random: RandomSource): void {
-  const newlyUnlocked = CUSTOMER_TYPES.filter(
-    (type) => isCustomerTypeUnlocked(state, type) && !state.everUnlockedCustomerTypeIds.includes(type.id),
-  );
-  for (const type of newlyUnlocked) {
-    state.everUnlockedCustomerTypeIds.push(type.id);
-    spawnCustomer(state, type.id, random);
+  if (state.quests.currentIndex < 3) return;
+  const rate = totalCustomerRate(state);
+  if (!state.customerArrivalsStarted) {
+    state.customerArrivalsStarted = true;
+    state.customerArrivalRate = rate;
+    state.customerArrivalRemaining = customerArrivalInterval(state) / 2;
+    state.arrivalMinuteRemaining = 60;
+    fillArrivalBag(state, random);
+    spawnCustomer(state, "sailors", random);
   }
-  const rating = barRating(state);
-  const interval = customerArrivalInterval(rating);
-  if (state.customerArrivalRating !== rating) {
-    state.customerArrivalRating = rating;
-    state.customerArrivalRemaining = interval;
+  if (Math.abs(state.customerArrivalRate - rate) > 1e-9) {
+    state.customerArrivalRate = rate;
+    state.customerArrivalRemaining = customerArrivalInterval(state) / 2;
+    state.arrivalMinuteRemaining = 60;
+    for (const id of state.arrivalTypeBag) state.arrivalTypeCarry[id] = (state.arrivalTypeCarry[id] ?? 0) + 1;
+    state.arrivalTypeBag = [];
+    fillArrivalBag(state, random);
+  }
+  if (rate <= 0) return;
+  state.arrivalMinuteRemaining -= seconds;
+  while (state.arrivalMinuteRemaining <= 0) {
+    state.arrivalMinuteRemaining += 60;
+    fillArrivalBag(state, random);
   }
   state.customerArrivalRemaining -= seconds;
   while (state.customerArrivalRemaining <= 0) {
     trySpawnArrivingCustomer(state, random);
-    state.customerArrivalRemaining += interval;
+    state.customerArrivalRemaining += customerArrivalInterval(state);
   }
 }
 
@@ -414,7 +407,7 @@ function chooseExtraActivity(state: GameState, customer: Customer, random: Rando
     if (customer.visitedExtras?.includes(activity)) continue;
     const type = activity === "toilet" ? "toilet-stall" : activity;
     if (!state.cells.some((cell) => cell.type === type)) continue;
-    if (random() < (activityHasFreePlace(state, activity) ? CONFIG.extraChanceFree : CONFIG.extraChanceBusy)) choices.push(activity);
+    if (activityHasFreePlace(state, activity) && random() < CONFIG.extraChanceFree) choices.push(activity);
   }
   return choices.length ? choices[Math.floor(random() * choices.length)] ?? null : null;
 }
@@ -432,7 +425,7 @@ function startExtraStage(state: GameState, customer: Customer, type: "toilet-sta
 function startPrimaryAgain(state: GameState, customer: Customer, random: RandomSource): boolean {
   const type = getCustomerType(customer.typeId);
   const orderId = type && chooseOrderId(state, type, random);
-  const activity = chooseActivity(state, type?.mandatoryActivity, type?.priorityActivity, random);
+  const activity = chooseActivity(state, random);
   if (!orderId || (activity !== "counter" && activity !== "table")) return false;
   const target = chooseCell(state, activity, customer.x, customer.y, random);
   if (!target) return false;
@@ -462,7 +455,7 @@ function finishExtraStage(state: GameState, customer: Customer, random: RandomSo
   const cell = getCell(state, customer.targetCellId);
   customer.slotIndex = null;
   if (customer.activity === "toilet" && cell) {
-    customer.toiletBonus = (customer.toiletBonus ?? 0) + cellBonusPercent(cell.level);
+    customer.toiletBonus = (customer.toiletBonus ?? 0) + cellBonusPercent(cell.level, cell.type);
     const room = cellsInRoom(state, cell);
     const nextTypes = cell.type === "toilet-stall" ? ["sink", "hand-dryer"] as const : cell.type === "sink" ? ["hand-dryer"] as const : [];
     for (const type of nextTypes) {
@@ -504,7 +497,7 @@ function startExiting(state: GameState, customer: Customer): void {
 
 function updateWaitingCustomer(state: GameState, customer: Customer, dt: number): void {
   customer.waitingElapsed += dt;
-  if (customer.waitingElapsed >= CONFIG.customerWaitingTimeout) {
+  if (!customer.isPrize && customer.waitingElapsed >= CONFIG.customerWaitingTimeout) {
     startExiting(state, customer);
     return;
   }
@@ -610,8 +603,12 @@ function assignWaitingPlaces(state: GameState, random: RandomSource): void {
 
     const type = getCustomerType(customer.typeId);
     if (!type) continue;
-    const lockedActivity = type.mandatoryActivity;
-    const activity = lockedActivity ?? chooseActivity(state, undefined, type.priorityActivity, random);
+    if (!customer.orderId) {
+      const orderId = chooseOrderId(state, type, random);
+      if (!orderId) continue;
+      customer.orderId = orderId;
+    }
+    const activity = chooseActivity(state, random);
     if (!activity || !activityHasFreePlace(state, activity)) continue;
 
     if (activity === "counter") {
@@ -652,7 +649,7 @@ function assignBartenders(state: GameState, random: RandomSource): void {
       reserveTap(state, bartender, customer, random);
     } else {
       const target = getCell(state, customer.targetCellId);
-      startBartenderMove(state, bartender, customer.x, customer.y, "moving-customer", target ? serviceLocalX(target, customer.slotIndex) : .5);
+      startBartenderMove(state, bartender, customer.x, customer.y, "moving-customer", target ? serviceLocalX(state, bartender, target, customer.slotIndex) : .5);
     }
   }
 }
@@ -663,7 +660,7 @@ function reserveTap(
   customer: Customer,
   random: RandomSource,
 ): boolean {
-  if (!state.menu.includes(customer.orderId ?? "")) return false;
+  if ((state.drinkLevels[customer.orderId] ?? 0) === 0) return false;
   const target = getCell(state, customer.targetCellId);
   const available = state.cells
     .filter((cell) => cell.id === bartender.homeTapCellId && !tapBusy(state, cell.id) && cellsShareRoom(state, cell, target))
@@ -694,10 +691,11 @@ export interface PaymentEvent {
 const paymentEvents = new WeakMap<GameState, PaymentEvent[]>();
 
 function recordPayment(state: GameState, customer: Customer, amount: number): void {
-  state.money += amount;
-  recordCustomerPayment(state, customer.typeId, customer.orderId, amount);
+  const paid = amount;
+  state.money += paid;
+  recordCustomerPayment(state, customer.typeId, customer.orderId, paid);
   const events = paymentEvents.get(state) ?? [];
-  events.push({ amount, x: customer.x, y: customer.y, localX: customer.localX ?? .5 });
+  events.push({ amount: paid, x: customer.x, y: customer.y, localX: customer.localX ?? .5 });
   paymentEvents.set(state, events);
 }
 
@@ -714,7 +712,7 @@ function consumptionDuration(cell: Cell | undefined): number {
   return CONFIG.drinkDuration / (1 + speedBonus / 100);
 }
 
-function extraDuration(state: GameState, customer: Customer): number {
+export function extraDuration(state: GameState, customer: Customer): number {
   const cell = getCell(state, customer.targetCellId);
   if (!cell || !(cell.type in CONFIG.extraUseSeconds)) return 0;
   const type = cell.type as keyof typeof CONFIG.extraUseSeconds;
@@ -730,10 +728,9 @@ function completeDelivery(
   const drink = getDrink(customer.orderId);
   const orderCell = getCell(state, customer.targetCellId);
   const tap = getCell(state, bartender.homeTapCellId);
-  const priceBonus = (orderCell?.type === "counter" ? cellBonusPercent(orderCell.level) : 0)
-    + (tap?.type === "taps" ? cellBonusPercent(tap.level) : 0);
-  if (drink) {
-    recordPayment(state, customer, drink.price * (1 + priceBonus / 100));
+  const type = getCustomerType(customer.typeId);
+  if (drink && type) {
+    recordPayment(state, customer, orderPrice(state, drink, type, orderCell?.type === "counter" ? cellBonusPercent(orderCell.level, orderCell.type) : 0, tap?.type === "taps" ? cellBonusPercent(tap.level, tap.type) : 0, customer.isPrize ? Math.max(1, state.customerLevels[type.id] ?? 0) : undefined));
   }
   customer.bartenderId = null;
   customer.phase = "drinking";
@@ -769,10 +766,9 @@ function finishWaiterDelivery(state: GameState, waiter: Waiter, customer: Custom
   const drink = getDrink(customer.orderId);
   const table = getCell(state, customer.targetCellId);
   const tap = getCell(state, customer.orderTapCellId ?? null);
-  if (drink) {
-    const priceBonus = (table?.type === "table" ? cellBonusPercent(table.level) : 0)
-      + (tap?.type === "taps" ? cellBonusPercent(tap.level) : 0);
-    recordPayment(state, customer, drink.price * (1 + priceBonus / 100));
+  const type = getCustomerType(customer.typeId);
+  if (drink && type) {
+    recordPayment(state, customer, orderPrice(state, drink, type, table?.type === "table" ? cellBonusPercent(table.level, table.type) : 0, tap?.type === "taps" ? cellBonusPercent(tap.level, tap.type) : 0, customer.isPrize ? Math.max(1, state.customerLevels[type.id] ?? 0) : undefined));
   }
   customer.phase = "drinking";
   customer.phaseRemaining = consumptionDuration(table);
@@ -887,7 +883,7 @@ function updateBartender(state: GameState, bartender: Bartender, dt: number, ran
       else resetBartender(bartender);
     } else {
       const target = getCell(state, customer.targetCellId);
-      startBartenderMove(state, bartender, customer.x, customer.y, "returning", target ? serviceLocalX(target, customer.slotIndex) : .5);
+      startBartenderMove(state, bartender, customer.x, customer.y, "returning", target ? serviceLocalX(state, bartender, target, customer.slotIndex) : .5);
     }
   } else if (bartender.phase === "returning" && customer) {
     if (customer.activity === "table" && customer.waiterId) {
@@ -933,8 +929,4 @@ export function advanceGame(
     step(state, dt, random);
     remaining -= dt;
   }
-}
-
-export function tapLayout(state: GameState): TapAssignment[] {
-  return tapAssignments(state);
 }

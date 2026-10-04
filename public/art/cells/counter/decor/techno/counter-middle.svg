@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160.947702060222" height="68.4278129587956" viewBox="0 0 160.947702060222 68.4278129587956" data-anchor="bottom-center">
+<title>Стойка со стульями — Стимпанк</title>
+<g stroke="#0b0603" stroke-width="2.365" stroke-linejoin="round" stroke-linecap="round">
+<g transform="matrix(0.157686212361331 0 0 0.157686212361331 -16.3454833597464 0)" stroke-width="15"><rect x="32.5" y="53.55" width="1163" height="372.899246" fill="#364949"/></g>
+
+<!-- Единая механическая внутренность: две трубы, поршень, передача и манометр. -->
+<rect x="11" y="14" width="138" height="37" rx="5" fill="#2c3d38"/>
+<path d="M15 22H44Q49 22 49 27V39Q49 44 54 44H115Q122 44 122 37V29" fill="none" stroke="#0b0603" stroke-width="7"/>
+<path d="M15 22H44Q49 22 49 27V39Q49 44 54 44H115Q122 44 122 37V29" fill="none" stroke="#89694c" stroke-width="4"/>
+<path d="M18 45H27Q31 45 31 41V34H97Q103 34 103 28V19H142" fill="none" stroke="#0b0603" stroke-width="6"/>
+<path d="M18 45H27Q31 45 31 41V34H97Q103 34 103 28V19H142" fill="none" stroke="#687463" stroke-width="3.3"/>
+<path d="M33 20H43V24H33Z" fill="#927b58" stroke-width="1.3"/>
+<rect x="32" y="25" width="12" height="17" rx="2" fill="#6f6650" stroke-width="1.5"/>
+<path d="M35 29H41M35 37H41" stroke="#a08b66" stroke-width="1.2"/>
+<path d="M37 42V47" stroke="#0b0603" stroke-width="5"/>
+<path d="M37 42V47" stroke="#947e59" stroke-width="2.5"/>
+<polygon points="77.70,24.98 80.51,26.31 80.51,31.69 77.70,33.02 77.70,33.02 78.75,35.94 74.94,39.75 72.02,38.70 72.02,38.70 70.69,41.51 65.31,41.51 63.98,38.70 63.98,38.70 61.06,39.75 57.25,35.94 58.30,33.02 58.30,33.02 55.49,31.69 55.49,26.31 58.30,24.98 58.30,24.98 57.25,22.06 61.06,18.25 63.98,19.30 63.98,19.30 65.31,16.49 70.69,16.49 72.02,19.30 72.02,19.30 74.94,18.25 78.75,22.06 77.70,24.98" fill="#8e7754" stroke-width="1.5"/><circle cx="68" cy="29" r="5.565" fill="#45463a" stroke-width="1.3"/><circle cx="68" cy="29" r="2.1" fill="#a08b66" stroke-width="1.1"/><polygon points="93.47,38.32 96.09,39.04 96.09,42.96 93.47,43.68 93.47,43.68 94.81,46.04 92.04,48.81 89.68,47.47 89.68,47.47 88.96,50.09 85.04,50.09 84.32,47.47 84.32,47.47 81.96,48.81 79.19,46.04 80.53,43.68 80.53,43.68 77.91,42.96 77.91,39.04 80.53,38.32 80.53,38.32 79.19,35.96 81.96,33.19 84.32,34.53 84.32,34.53 85.04,31.91 88.96,31.91 89.68,34.53 89.68,34.53 92.04,33.19 94.81,35.96 93.47,38.32" fill="#796b51" stroke-width="1.5"/><circle cx="87" cy="41" r="3.71" fill="#45463a" stroke-width="1.3"/><circle cx="87" cy="41" r="2.1" fill="#a08b66" stroke-width="1.1"/>
+<circle cx="123" cy="26" r="8" fill="#97825f" stroke-width="1.6"/>
+<circle cx="123" cy="26" r="5.2" fill="#aaa08a" stroke-width="1.1"/>
+<path d="M123 26L126 23" stroke="#5b382b" stroke-width="1.5"/>
+<path d="M20 19V25M110 16V22M111 41V47" stroke="#0b0603" stroke-width="4"/>
+<path d="M20 19V25M110 16V22M111 41V47" stroke="#927b58" stroke-width="2"/>
+
+<g transform="matrix(0.157686212361331 0 0 0.157686212361331 -16.3454833597464 0)" stroke-width="15"><rect x="61.5" y="345.555531" width="1105" height="30" rx="15" fill="#889892"/></g>
+<g transform="matrix(0.157686212361331 0 0 0.157686212361331 -16.3454833597464 0)" stroke-width="15"><rect x="7.5" y="7.5" width="1213" height="47.7" rx="26.5" fill="#364949"/></g>
+<path d="M2 3.6H159" fill="none" stroke="#889892" stroke-width=".9"/>
+</g></svg>

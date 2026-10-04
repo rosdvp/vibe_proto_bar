@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" width="46" height="46" viewBox="0 0 46 46" data-anchor="bottom-center">
+  <g id="artwork" transform="matrix(0.0968421052631579 0 0 0.10267857142857142 20.821052631578947 27.723214285714285)">
+    <defs>
+      <linearGradient id="cap" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#4a4847" />
+        <stop offset="1" stop-color="#242424" />
+      </linearGradient>
+      <linearGradient id="skin" x1="0" y1="0" x2=".7" y2="1">
+        <stop stop-color="#ffc47c" />
+        <stop offset="1" stop-color="#e9a05c" />
+      </linearGradient>
+      <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+        <stop stop-color="#382b20" />
+        <stop offset="1" stop-color="#241c18" />
+      </linearGradient>
+    </defs>
+    <g stroke="#090807" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-156-69 Q-154-139-36-146 Q75-143 141-83 Q166-54 165-22 L205 4 Q224 21 211 36 L166 49 Q181 64 171 79 Q185 94 167 105 Q138 143 65 161 Q-28 186-105 142 Q-164 107-165 26Z" fill="url(#skin)" stroke-width="15" />
+      <path d="M-153-31 Q-113-70-60-74 L-62 39 Q-109 67-143 32Z" fill="url(#hair)" stroke="none" />
+      <path d="M-130 42 Q-99 99-31 112 Q25 103 76 58 Q111 71 148 61 L165 80 Q183 93 165 106 Q134 141 65 155 Q-32 182-104 137 Q-147 104-151 64Z" fill="#dfa05c" stroke="none" />
+      <ellipse cx="96" cy="13" rx="32" ry="39" fill="#cc8d50" stroke="none" />
+      <path d="M75 3 H124 V15 A24.5 25 0 0 1 75 15Z" fill="#080807" stroke="none" />
+      <path d="M63-18 H138 V6 H63Z" fill="#080807" stroke="none" />
+      <path d="M130 83 Q148 80 169 83" fill="none" stroke-width="12" />
+      <path d="M124 106 Q138 99 149 99" fill="none" stroke="#edb16e" stroke-width="9" />
+      <g id="side-ear" transform="translate(-79 13)">
+        <ellipse rx="30" ry="42" fill="url(#skin)" stroke-width="12" />
+        <path d="M-5-20 Q17-19 16 3 Q17 23-1 23" fill="none" stroke="#cf8e4e" stroke-width="8" />
+      </g>
+      <path d="M-148-74 L-135-214 Q-104-243-56-230 L1-209 58-229 118-193 149-83Z" fill="url(#cap)" stroke-width="15" />
+      <path d="M-120-202 Q-81-226-56-213 L1-191 58-211 105-182" fill="none" stroke="#67605a" stroke-width="10" />
+      <path d="M-148-109 Q0-132 143-110 L151-69 Q0-92-153-66Z" fill="#74654f" stroke-width="10" />
+      <path d="M-157-74 L-200-62 Q-224-50-200-34 Q-60 17 112-4 L213-16 Q243-30 217-42 L153-66 Q2-49-157-74Z" fill="#363535" stroke-width="14" />
+    </g>
+  </g>
+</svg>

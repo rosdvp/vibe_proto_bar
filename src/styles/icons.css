@@ -1,0 +1,80 @@
+/* Общая графика UI; размеры контейнеров задают тематические стили. */
+.art-icon { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; -webkit-user-drag: none; }
+.mirror-icon { transform: scaleX(-1); }
+.color-dot { border: 0; background: transparent; }
+.entity-layout .entity-avatar, .entity-layout .customer-avatar,
+.build-option .build-picture, .research-card .research-picture { border: 0; background: transparent; }
+.build-option.locked .build-picture > .lock-icon { width: 100%; height: 100%; padding: 0; }
+.resource > i, .hold-energy > i, .bottom-nav button > i, .quest-claim > i { border: 0; background: transparent; }
+.bottom-nav .locked-nav .lock-icon { width: 39px; height: 39px; }
+.bottom-nav .close-nav > i { padding: 7px; }
+.hold-label { display: flex; align-items: center; justify-content: center; gap: 2px; white-space: nowrap; font-size: .85em; }
+.hold-label > .art-icon { width: 16px; height: 16px; flex: 0 0 auto; }
+.square-close > .art-icon { padding: 4px; }
+.focus-arrow > .art-icon { width: 100%; height: 100%; }
+.static-cell-title { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.static-cell-title > .art-icon { width: 38px; height: 38px; flex: 0 0 auto; }
+.requirement > .art-icon { position: absolute; left: -15px; width: 27px; height: 27px; }
+.customer-type .requirement > .art-icon { left: -13px; width: 26px; height: 26px; }
+.status-mark { width: 24px; height: 24px; }
+.unlock-feature-image > .art-icon { width: 100%; height: 100%; }
+.research-heading b { display: flex; align-items: center; gap: 2px; }
+.research-heading b > .art-icon { width: 15px; height: 15px; flex: 0 0 auto; }
+.attention-indicator { background: transparent; }
+.plus-mark > .art-icon { width: 100%; height: 100%; }
+.waiting-indicator > i { display: block; width: 100%; height: 100%; }
+.offer-icon > .art-icon { width: 100%; height: 100%; }
+
+.offer-question, .offer-cross { display: block; width: 70%; height: 80%; }
+.offer-reward-dot { border: 0; background: transparent; }
+
+
+/* Единая подложка семейства сохраняет цвет во всех прозрачных участках иллюстрации. */
+.icon-family-customers { --icon-backdrop: #6d4445; }
+.icon-family-cells { --icon-backdrop: #4e626b; }
+.icon-family-drinks { --icon-backdrop: #88713f; }
+.entity-icon { background: radial-gradient(circle closest-side, var(--icon-backdrop) 90%, transparent 90%); }
+
+.round-icon { border: var(--icon-outline-width, 3px) solid #000; border-radius: 50%; background-color: var(--icon-backdrop, #4e626b); }
+.locked-icon { background: #747874; padding: 16%; }
+.entity-avatar > .lock-icon, .customer-avatar > .lock-icon, .research-picture > .lock-icon { width: 100%; height: 100%; }
+.color-dot { display: inline-flex; align-items: center; justify-content: center; vertical-align: -.18em; }
+.color-dot > .art-icon { object-fit: contain; }
+
+.requirement > .lock-icon { position: absolute; left: -15px; width: 27px; height: 27px; }
+.customer-type .requirement > .lock-icon { left: -13px; width: 26px; height: 26px; }
+
+/* Нарисованный край PNG скрыт внутри единственного контура интерфейса. */
+.entity-icon { overflow: hidden; }
+.entity-icon > .entity-art { transform: scale(1.12); }
+.build-option { --icon-outline-width: 4px; }
+
+/* Центр цифр Oswald ниже центра строки: учитываем это в цене на кнопках. */
+.game-frame button .color-dot.money, .service-panel button .color-dot.money { transform: translateY(.12em); }
+
+/* Отступ контента от круга общий для списков; эталон — карточка клиента. */
+:is(.entity-layout, .research-card, .build-option) {
+  --card-icon-left: -28px;
+  --card-icon-size: 59px;
+  --card-icon-content-gap: 13px;
+  padding-left: calc(var(--card-icon-left) + var(--card-icon-size) + var(--card-icon-content-gap));
+}
+.build-option { --card-icon-left: -31px; --card-icon-size: 61px; }
+:is(.entity-layout .entity-avatar, .entity-layout .customer-avatar,
+  .research-card .research-picture, .build-option .build-picture) {
+  left: var(--card-icon-left);
+  width: var(--card-icon-size);
+  height: var(--card-icon-size);
+}
+
+/* Вертикальный интервал между названием и содержимым — как в апгрейдах. */
+:is(.entity-layout, .research-card, .build-option) { --card-title-content-gap: 5px; row-gap: var(--card-title-content-gap); }
+:is(.entity-layout, .build-option) > strong {
+  min-height: 20px;
+  line-height: 1.15;
+  align-self: end;
+}
+.build-option > .build-badges { align-self: start; margin-top: calc((var(--badge-icon-size) - var(--badge-icon-size) / 1.1) / 2); }
+
+/* PNG-контур скрыт под единственной рамкой той же толщины, что у кнопки. */
+.offer-ad-symbol > .art-icon { transform: scale(1.2); }

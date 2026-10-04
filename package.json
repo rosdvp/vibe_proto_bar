@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "preview": "vite preview",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b --pretty false",
     "test": "node --import tsx --test tests/*.test.ts"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
+    "happy-dom": "^20.14.6",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2",
     "vite": "^6.2.2"

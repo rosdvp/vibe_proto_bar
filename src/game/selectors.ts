@@ -3,24 +3,9 @@ import type {
   Cell,
   CellType,
   CustomerTypeDefinition,
-  DrinkCategory,
   DrinkDefinition,
   GameState,
 } from "../types";
-
-export function customersPerMinute(rating: number): number {
-  const points = CONFIG.customerRatePoints;
-  const boundedRating = Math.min(points[points.length - 1]!.rating, Math.max(0, rating));
-  for (let index = 1; index < points.length; index += 1) {
-    const previous = points[index - 1]!;
-    const next = points[index]!;
-    if (boundedRating <= next.rating) {
-      const fraction = (boundedRating - previous.rating) / (next.rating - previous.rating);
-      return previous.customersPerMinute + (next.customersPerMinute - previous.customersPerMinute) * fraction;
-    }
-  }
-  return points[points.length - 1]!.customersPerMinute;
-}
 
 export function getCell(state: GameState, id: string | null): Cell | undefined {
   return id ? state.cells.find((cell) => cell.id === id) : undefined;
@@ -75,21 +60,21 @@ export function getCustomerType(id: string): CustomerTypeDefinition | undefined 
   return CUSTOMER_TYPES.find((type) => type.id === id);
 }
 
-export function cellQuality(level: number): number {
-  return ((level - 1) / (CONFIG.maxCellLevel - 1)) * 100;
+export function levelBonusPercent(level: number, range: { min: number; max: number }): number {
+  return range.min + (range.max - range.min) * ((level - 1) / (CONFIG.maxCellLevel - 1));
 }
 
-export function cellBonusPercent(level: number): number {
-  return (level - 1) * CONFIG.orderPriceBonusPercentPerLevel;
+export function cellBonusPercent(level: number, type: CellType): number {
+  return levelBonusPercent(level, type === "table" ? CONFIG.tableOrderPriceBonusPercentRange : CONFIG.cellBonusPercentRange);
 }
 
 export function workSpeedBonusPercent(level: number): number {
-  return (level - 1) * CONFIG.workSpeedBonusPercentPerLevel;
+  return levelBonusPercent(level, CONFIG.workSpeedBonusPercentRange);
 }
 
 export function extraUsePrice(cell: Cell): number {
   if (cell.type !== "darts" && cell.type !== "billiards") return 0;
-  return Math.floor(CONFIG.extraPrice[cell.type] * (1 + (cell.level - 1) * CONFIG.extraPriceBonusPercentPerLevel / 100) * 10 + 1e-9) / 10;
+  return Math.floor(CONFIG.extraPrice[cell.type] * (1 + levelBonusPercent(cell.level, CONFIG.extraPriceBonusPercentRange) / 100) + 1e-9);
 }
 
 export function milestoneValue(level: number, values: readonly [number, number, number, number]): number {
@@ -121,35 +106,12 @@ export function dryerCapacity(cell: Cell): number {
   return 0;
 }
 
-export function tapCapacity(cell: Cell, category: DrinkCategory): number {
-  if (cell.type !== "taps") return 0;
-  return category === "keg" ? CONFIG.kegSlotsPerTap : 0;
-}
-
-export function menuCapacity(state: GameState, category: DrinkCategory): number {
-  return state.cells.reduce((total, cell) => total + tapCapacity(cell, category), 0);
-}
-
 export function maximumOccupancy(state: GameState): number {
   return state.cells
     .filter((cell) => cell.type === "counter" || cell.type === "table")
     .reduce((total, cell) => total + cellCapacity(cell), 0);
 }
 
-export function barRating(state: GameState): number {
-  return state.cells.reduce(
-    (total, cell) => total + (cell.type === "entrance" || cell.type === "stairs" ? 0 : (cell.level - 1 + (["toilet-stall", "sink", "hand-dryer", "darts", "billiards"].includes(cell.type) ? 1 : 0)) * CONFIG.ratingPerLevel),
-    0,
-  );
-}
-
 export function cellsOfType(state: GameState, type: CellType): Cell[] {
   return state.cells.filter((cell) => cell.type === type);
-}
-
-export function menuDrinks(state: GameState): DrinkDefinition[] {
-  return state.menu.flatMap((id) => {
-    const drink = getDrink(id);
-    return drink ? [drink] : [];
-  });
 }

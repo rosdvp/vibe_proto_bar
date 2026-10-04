@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="58" height="85.8" viewBox="0 0 58 85.8" data-anchor="bottom-center">
+  <title>Раковина: кран и пьедестал</title>
+  <defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#99998e"/><stop offset=".45" stop-color="#e1dccb"/><stop offset="1" stop-color="#797b73"/></linearGradient><linearGradient id="ceramic" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0e8d5"/><stop offset=".6" stop-color="#d7d2bf"/><stop offset="1" stop-color="#a5ab9d"/></linearGradient></defs>
+  <g transform="scale(1 1.32)" stroke="#0b0603" stroke-width="2.365" stroke-linejoin="round" stroke-linecap="round">
+    <path vector-effect="non-scaling-stroke" d="M20 30h18l-3 25 5 8H18l5-8z" fill="url(#ceramic)"/>
+    <path vector-effect="non-scaling-stroke" d="M14 26h30v6H14z" fill="#a5ab9d"/>
+    <path vector-effect="non-scaling-stroke" d="M26 24V9q0-6 6-6h10v6H33v15" fill="url(#metal)"/>
+    <path vector-effect="non-scaling-stroke" d="M22 13h14" stroke="#cbaa5b" stroke-width="3"/>
+    <path vector-effect="non-scaling-stroke" d="M28 41v10" stroke="#f4ecdc" stroke-width="1"/>
+    <path vector-effect="non-scaling-stroke" d="M41 9v4" stroke="#797b73" stroke-width="3"/>
+  </g>
+</svg>

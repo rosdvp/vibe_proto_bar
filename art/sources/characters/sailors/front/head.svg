@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" width="46" height="46" viewBox="0 0 46 46" data-anchor="bottom-center">
+  <g id="artwork" transform="matrix(0.09583333333333334 0 0 0.10267857142857142 23 27.723214285714285)">
+<defs>
+    <linearGradient id="jacket" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#475b74" />
+      <stop offset=".5" stop-color="#34445c" />
+      <stop offset="1" stop-color="#283449" />
+    </linearGradient>
+    <linearGradient id="cap" x1="0" y1="0" x2=".8" y2="1">
+      <stop stop-color="#53637a" />
+      <stop offset="1" stop-color="#293343" />
+    </linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2=".7" y2="1">
+      <stop stop-color="#ffc47c" />
+      <stop offset="1" stop-color="#e9a05c" />
+    </linearGradient>
+    <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#dca954" />
+      <stop offset=".55" stop-color="#f1c779" />
+      <stop offset="1" stop-color="#be914e" />
+    </linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#382b20" />
+      <stop offset="1" stop-color="#241c18" />
+    </linearGradient>
+    <g id="palm" stroke="#090807" stroke-width="13">
+      <circle r="55" fill="url(#skin)" />
+      <path d="M-49 15 Q0 62 49 15 A51 51 0 0 1-49 15Z" fill="#e9a05d" stroke="none" />
+    </g>
+    <g id="ear">
+      <ellipse rx="29" ry="44" fill="url(#skin)" stroke="#090807" stroke-width="14" />
+      <ellipse cx="5" cy="5" rx="12" ry="28" fill="#d69150" />
+    </g>
+    <g id="eye" stroke="none">
+      <ellipse cy="18" rx="39" ry="39" fill="#cc8d50" />
+      <path d="M-26 5 H26 V15 A26 26 0 0 1-26 15Z" fill="#080807" />
+      <rect x="-45" y="-16" width="90" height="23" rx="2" fill="#080807" />
+    </g>
+    <g id="body" stroke="#090807" stroke-width="15" stroke-linejoin="round">
+      <path d="M-160 118 V-164 Q-157-246-108-287 Q-57-325 0-325 Q57-325 108-287 Q157-246 160-164 V118 Q160 212 75 220 H-75 Q-160 212-160 118Z" fill="url(#jacket)" />
+      <path d="M-142-178 Q-141-245-110-270 Q-141-150-139 123 Q-137 180-105 198 Q-144 187-145 121Z" fill="#586c86" opacity=".45" stroke="none" />
+      <path d="M139-185 Q154-90 151 120 Q150 185 108 200 Q124 125 124-170Z" fill="#718097" opacity=".2" stroke="none" />
+    </g>
+  </defs>
+  <g id="front-head" stroke="#090807" stroke-linejoin="round" stroke-linecap="round">
+    <use href="#ear" x="-185" y="10" />
+    <use href="#ear" x="185" y="10" />
+    <path d="M-174-62 Q-157-127 0-131 Q157-127 174-62 V22 Q174 107 115 140 Q61 173 0 169 Q-61 173-115 140 Q-174 107-174 22Z" fill="url(#skin)" stroke-width="15" />
+    <path d="M-164-28 Q0-5 164-28 V-64 Q0-118-164-64Z" fill="#dc9551" stroke="none" />
+    <path d="M-140 43 Q-123 84-88 91 Q-74 63-30 64 H30 Q74 63 88 91 Q123 84 140 43 L157 56 Q143 128 82 150 Q0 179-82 150 Q-143 128-157 56Z" fill="#b88957" stroke="none" />
+    <use href="#eye" x="-70" />
+    <use href="#eye" x="70" />
+    <path d="M-42 98 Q0 91 42 98" fill="none" stroke-width="16" />
+    <path d="M-34 121 Q0 109 34 121" fill="none" stroke="#edb16e" stroke-width="12" />
+    <path d="M-139 62 l3 5 M-131 78 l3 5 M-121 94 l3 5 M-106 108 l3 5 M-84 126 l2 5 M-60 137 l2 5 M-34 143 l1 5 M0 146 v5 M34 143 l-1 5 M60 137 l-2 5 M84 126 l-2 5 M106 108 l-3 5 M121 94 l-3 5 M131 78 l-3 5 M139 62 l-3 5" fill="none" stroke="#916b45" stroke-width="5" />
+    <path d="M-203-91 Q-245-148-190-187 Q-111-262-19-252 Q42-268 116-214 Q180-172 221-114 Q244-67 183-56 L-170-50Z" fill="url(#cap)" stroke-width="15" />
+    <path d="M-203-118 Q-116-216-22-232 Q62-249 131-191 Q48-246-22-252 Q-111-262-190-187 Q-225-160-203-118Z" fill="#718095" stroke="none" opacity=".55" />
+    <path d="M-22-251 Q-70-226-110-174 L-146-122 M68-231 Q99-171 142-104 M-177-162 l24 47 -35-11" fill="none" stroke-width="10" />
+    <path d="M-181-94 Q-62-152 130-110 Q164-101 195-69 Q-12-105-153-47 Q-184-47-181-94Z" fill="#37465c" stroke-width="13" />
+    <path d="M-146-73 Q-6-119 168-75 Q-7-89-146-54Z" fill="#697b94" stroke="none" opacity=".6" />
+  </g>
+  </g>
+</svg>

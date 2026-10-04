@@ -1,0 +1,15 @@
+@font-face {
+  font-family: "Oswald";
+  src: url("../assets/fonts/oswald.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 200 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Roboto Condensed";
+  src: url("../assets/fonts/roboto-condensed.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+

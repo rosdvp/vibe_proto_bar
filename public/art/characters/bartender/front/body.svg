@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" width="39" height="78" viewBox="0 0 39 78" data-anchor="bottom-center">
+  <g id="artwork" transform="matrix(0.11607142857142858 0 0 0.13780918727915195 19.5 46.57950530035336)">
+    <defs>
+      <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="0">
+        <stop stop-color="#eee2c7" />
+        <stop offset=".55" stop-color="#f5e9d0" />
+        <stop offset="1" stop-color="#cabc9f" />
+      </linearGradient>
+      <g id="body" stroke="#090807" stroke-width="15" stroke-linejoin="round">
+        <path d="M-160 118 V-164 Q-157-246-108-287 Q-57-325 0-325 Q57-325 108-287 Q157-246 160-164 V118 Q160 212 75 220 H-75 Q-160 212-160 118Z" fill="url(#vest)" />
+      </g>
+      <linearGradient id="vest" x1="0" y1="0" x2="1" y2="0">
+        <stop stop-color="#47504f" />
+        <stop offset=".5" stop-color="#343c3b" />
+        <stop offset="1" stop-color="#272f2e" />
+      </linearGradient>
+      <linearGradient id="apron" x1="0" y1="0" x2="1" y2="0">
+        <stop stop-color="#65584b" />
+        <stop offset=".55" stop-color="#51463c" />
+        <stop offset="1" stop-color="#3e362f" />
+      </linearGradient>
+    </defs>
+    <g id="front-body" stroke="#090807" stroke-width="12" stroke-linejoin="round">
+      <use href="#body" />
+      <path d="M-76-305 Q0-330 76-305 L35-205 0-149-35-205Z" fill="url(#shirt)" />
+      <path d="M-76-305 L-28-260 0-280 28-260 76-305 L43-214 0-252-43-214Z" fill="#f0e5cd" stroke-width="10" />
+      <path d="M0-149 V29" fill="none" stroke-width="9" />
+      <path d="M-8-263 L-46-278 Q-54-254-46-239 L-8-252 M8-263 L46-278 Q54-254 46-239 L8-252Z" fill="#6d342e" stroke-width="9" />
+      <rect x="-11" y="-266" width="22" height="24" rx="5" fill="#87483b" stroke-width="8" />
+      <circle cx="13" cy="-109" r="7" fill="#bca77a" stroke-width="5" />
+      <circle cx="13" cy="-62" r="7" fill="#bca77a" stroke-width="5" />
+      <path d="M-91-111 L-40-107" fill="none" stroke-width="9" />
+      <path d="M-160 0 Q0 14 160 0 V118 Q160 212 75 220 H-75 Q-160 212-160 118Z" fill="url(#apron)" />
+      <path d="M-160 3 Q0 19 160 3 V28 Q0 43-160 28Z" fill="#766654" stroke-width="9" />
+      <path d="M-65 69 H65 V137 Q0 158-65 137Z" fill="#5f5245" stroke-width="9" />
+      <path d="M-55 79 H55" fill="none" stroke="#9b8971" stroke-width="7" opacity=".5" />
+    </g>
+  </g>
+</svg>

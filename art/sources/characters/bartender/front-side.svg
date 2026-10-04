@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1100" viewBox="0 0 1200 1100" role="img" aria-labelledby="title desc">
+  <title id="title">Бармен — спереди и сбоку</title>
+  <desc id="desc">Бармен в белой рубашке, тёмном жилете, бабочке и фартуке. Пропорции и обводка исходного матроса. Голова, тело и ладони разделены на группы.</desc>
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2=".7" y2="1">
+      <stop stop-color="#ffc47c" />
+      <stop offset="1" stop-color="#e9a05c" />
+    </linearGradient>
+    <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#eee2c7" />
+      <stop offset=".55" stop-color="#f5e9d0" />
+      <stop offset="1" stop-color="#cabc9f" />
+    </linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#382b20" />
+      <stop offset="1" stop-color="#241c18" />
+    </linearGradient>
+    <g id="palm" stroke="#090807" stroke-width="13">
+      <circle r="55" fill="url(#skin)" />
+      <path d="M-49 15 Q0 62 49 15 A51 51 0 0 1-49 15Z" fill="#e9a05d" stroke="none" />
+    </g>
+    <g id="ear">
+      <ellipse rx="29" ry="44" fill="url(#skin)" stroke="#090807" stroke-width="14" />
+      <ellipse cx="5" cy="5" rx="12" ry="28" fill="#d69150" />
+    </g>
+    <g id="eye" stroke="none">
+      <ellipse cy="18" rx="39" ry="39" fill="#cc8d50" />
+      <path d="M-26 5 H26 V15 A26 26 0 0 1-26 15Z" fill="#080807" />
+      <rect x="-45" y="-16" width="90" height="23" rx="2" fill="#080807" />
+    </g>
+    <g id="body" stroke="#090807" stroke-width="15" stroke-linejoin="round">
+      <path d="M-160 118 V-164 Q-157-246-108-287 Q-57-325 0-325 Q57-325 108-287 Q157-246 160-164 V118 Q160 212 75 220 H-75 Q-160 212-160 118Z" fill="url(#vest)" />
+    </g>
+    <linearGradient id="vest" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#47504f" />
+      <stop offset=".5" stop-color="#343c3b" />
+      <stop offset="1" stop-color="#272f2e" />
+    </linearGradient>
+    <linearGradient id="apron" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#65584b" />
+      <stop offset=".55" stop-color="#51463c" />
+      <stop offset="1" stop-color="#3e362f" />
+    </linearGradient>
+  </defs>
+  <g id="front" transform="translate(310 785)">
+    <g id="front-body" stroke="#090807" stroke-width="12" stroke-linejoin="round">
+      <use href="#body" />
+      <path d="M-76-305 Q0-330 76-305 L35-205 0-149-35-205Z" fill="url(#shirt)" />
+      <path d="M-76-305 L-28-260 0-280 28-260 76-305 L43-214 0-252-43-214Z" fill="#f0e5cd" stroke-width="10" />
+      <path d="M0-149 V29" fill="none" stroke-width="9" />
+      <path d="M-8-263 L-46-278 Q-54-254-46-239 L-8-252 M8-263 L46-278 Q54-254 46-239 L8-252Z" fill="#6d342e" stroke-width="9" />
+      <rect x="-11" y="-266" width="22" height="24" rx="5" fill="#87483b" stroke-width="8" />
+      <circle cx="13" cy="-109" r="7" fill="#bca77a" stroke-width="5" />
+      <circle cx="13" cy="-62" r="7" fill="#bca77a" stroke-width="5" />
+      <path d="M-91-111 L-40-107" fill="none" stroke-width="9" />
+      <path d="M-160 0 Q0 14 160 0 V118 Q160 212 75 220 H-75 Q-160 212-160 118Z" fill="url(#apron)" />
+      <path d="M-160 3 Q0 19 160 3 V28 Q0 43-160 28Z" fill="#766654" stroke-width="9" />
+      <path d="M-65 69 H65 V137 Q0 158-65 137Z" fill="#5f5245" stroke-width="9" />
+      <path d="M-55 79 H55" fill="none" stroke="#9b8971" stroke-width="7" opacity=".5" />
+    </g>
+    <g id="front-head" transform="translate(0 -448)" stroke="#090807" stroke-linejoin="round" stroke-linecap="round">
+      <use href="#ear" x="-185" y="10" />
+      <use href="#ear" x="185" y="10" />
+      <path d="M-174-62 Q-157-127 0-131 Q157-127 174-62 V22 Q174 107 115 140 Q61 173 0 169 Q-61 173-115 140 Q-174 107-174 22Z" fill="url(#skin)" stroke-width="15" />
+      <path d="M-164-28 Q0-5 164-28 V-64 Q0-118-164-64Z" fill="#dc9551" stroke="none" />
+      <path d="M-140 43 Q-123 84-88 91 Q-74 63-30 64 H30 Q74 63 88 91 Q123 84 140 43 L157 56 Q143 128 82 150 Q0 179-82 150 Q-143 128-157 56Z" fill="#b88957" stroke="none" />
+      <use href="#eye" x="-70" />
+      <use href="#eye" x="70" />
+      <path d="M-42 98 Q0 91 42 98" fill="none" stroke-width="16" />
+      <path d="M-34 121 Q0 109 34 121" fill="none" stroke="#edb16e" stroke-width="12" />
+      <path d="M-22 61 Q-43 55-72 75 Q-47 89-12 78 L0 70 12 78 Q47 89 72 75 Q43 55 22 61 L0 56Z" fill="#382b20" stroke-width="8" />
+      <path d="M-174-49 L-177-105 Q-169-178-109-191 Q-35-222 51-193 Q113-185 151-143 Q177-113 174-48 L148-37 Q76-95 1-109 Q-74-105-148-47 L-151 13-173 0Z" fill="url(#hair)" stroke-width="15" />
+      <path d="M-158-113 Q-144-169-104-174 Q-30-203 47-178 Q99-171 137-137 Q74-192 1-179 Q-77-177-158-113Z" fill="#64503a" opacity=".55" stroke="none" />
+      <path d="M-117-96 Q-75-153-17-166 M-57-100 Q-20-151 42-157 M11-106 Q50-141 95-133" fill="none" stroke-width="10" />
+      <path d="M-164-55 L-146-66-150 8-164 1Z M151-55 L163-46 165 6 150 13Z" fill="#8d8170" stroke="none" />
+    </g>
+    <use id="front-hand-left" href="#palm" x="-225" y="-30" />
+    <use id="front-hand-right" href="#palm" x="225" y="-30" />
+  </g>
+  <g id="side" transform="translate(885 785)">
+    <use id="side-hand-far" href="#palm" x="135" y="-42" />
+    <g id="side-body" stroke="#090807" stroke-width="14" stroke-linejoin="round">
+      <path d="M-136 127 V-179 Q-136-263-76-301 Q-25-330 31-315 Q113-302 128-223 Q140-164 139-102 V129 Q139 219 70 220 H-70 Q-136 217-136 127Z" fill="url(#vest)" />
+      <path d="M49-306 L104-267 110-157 87-167 72-224Z" fill="url(#shirt)" stroke-width="8" />
+      <path d="M49-306 L80-278 104-267 92-229 65-255Z" fill="#f0e5cd" stroke-width="9" />
+      <path d="M98-264 L124-277 131-252 108-249Z" fill="#6d342e" stroke-width="8" />
+      <path d="M100-157 V29" fill="none" stroke-width="9" />
+      <path d="M-55-111 L-4-107" fill="none" stroke-width="9" />
+      <path d="M-136 1 Q10 17 139 0 V129 Q139 219 70 220 H-70 Q-136 217-136 127Z" fill="url(#apron)" stroke-width="12" />
+      <path d="M-136 3 Q10 19 139 3 V28 Q10 43-136 28Z" fill="#766654" stroke-width="9" />
+      <path d="M40 70 L99 66 V138 Q70 151 40 140Z" fill="#5f5245" stroke-width="9" />
+      <path d="M47 80 L92 76" fill="none" stroke="#9b8971" stroke-width="7" opacity=".5" />
+    </g>
+    <g id="side-head" transform="translate(0 -448)" stroke="#090807" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-156-69 Q-154-139-36-146 Q75-143 141-83 Q166-54 165-22 L205 4 Q224 21 211 36 L166 49 Q181 64 171 79 Q185 94 167 105 Q138 143 65 161 Q-28 186-105 142 Q-164 107-165 26Z" fill="url(#skin)" stroke-width="15" />
+      <path d="M-130 42 Q-99 99-31 112 Q25 103 76 58 Q111 71 148 61 L165 80 Q183 93 165 106 Q134 141 65 155 Q-32 182-104 137 Q-147 104-151 64Z" fill="#b88957" stroke="none" />
+      <ellipse cx="96" cy="13" rx="32" ry="39" fill="#cc8d50" stroke="none" />
+      <path d="M75 3 H124 V15 A24.5 25 0 0 1 75 15Z" fill="#080807" stroke="none" />
+      <path d="M63-18 H138 V6 H63Z" fill="#080807" stroke="none" />
+      <path d="M130 83 Q148 80 169 83" fill="none" stroke-width="12" />
+      <path d="M124 106 Q138 99 149 99" fill="none" stroke="#edb16e" stroke-width="9" />
+      <path d="M145 50 Q158 45 168 52 L175 65 Q151 74 126 66Z" fill="#382b20" stroke-width="8" />
+      <path d="M-157-41 L-170-99 Q-162-168-108-184 Q-30-219 52-184 Q114-160 143-105 L140-47 Q63-57 13-98 Q-29-96-68-62 L-68 14-100 34-125-12Z" fill="url(#hair)" stroke-width="15" />
+      <path d="M-153-110 Q-130-164-104-167 Q-27-201 46-166 Q94-147 122-113 Q71-170 12-170 Q-58-175-153-110Z" fill="#64503a" opacity=".55" stroke="none" />
+      <path d="M-117-79 Q-83-140-20-158 M-60-74 Q-32-126 41-137 M-9-93 Q30-113 91-98" fill="none" stroke-width="10" />
+      <path d="M-92-60 L-69-73-69 13-96 29Z" fill="#8d8170" stroke="none" />
+      <g id="side-ear" transform="translate(-79 13)">
+        <ellipse rx="30" ry="42" fill="url(#skin)" stroke-width="12" />
+        <path d="M-5-20 Q17-19 16 3 Q17 23-1 23" fill="none" stroke="#cf8e4e" stroke-width="8" />
+      </g>
+    </g>
+    <use id="side-hand-near" href="#palm" x="-136" y="-30" />
+  </g>
+</svg>

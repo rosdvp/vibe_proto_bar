@@ -12,7 +12,7 @@
   animation-delay: var(--attention-pulse-delay, 0s);
 }
 
-.menu-item > .attention-indicator { top: 0; right: 0; }
+.entity-upgrade > .attention-indicator { right: 0; }
 .map-viewport:not(.is-focused) .map-cell .attention-indicator { top: -17px; right: -17px; width: 34px; height: 34px; }
 .map-cell.built > .attention-indicator { left: 50%; right: auto; margin-left: -12px; }
 .map-viewport:not(.is-focused) .map-cell.built > .attention-indicator { right: auto; margin-left: -17px; }

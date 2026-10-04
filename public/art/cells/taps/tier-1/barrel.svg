@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="68" height="86" viewBox="0 0 68 86" data-anchor="bottom-center">
+  <title>Деревянная бочка с латунным краном</title>
+  <defs>
+    <radialGradient id="tap-wood" cx=".36" cy=".28" r=".8">
+      <stop stop-color="#94633e"/>
+      <stop offset=".65" stop-color="#70492f"/>
+      <stop offset="1" stop-color="#4e3225"/>
+    </radialGradient>
+    <linearGradient id="tap-iron" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#888276"/>
+      <stop offset=".48" stop-color="#59564f"/>
+      <stop offset="1" stop-color="#353632"/>
+    </linearGradient>
+    <linearGradient id="tap-brass" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#98733c"/>
+      <stop offset=".42" stop-color="#d5b162"/>
+      <stop offset="1" stop-color="#af8846"/>
+    </linearGradient>
+    <clipPath id="tap-face"><circle cx="34" cy="34" r="25"/></clipPath>
+  </defs>
+  <g stroke="#0b0603" stroke-width="2.365" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M14 52v12h9l3-9m19-3v12h9l-2-13" fill="#4e3225"/>
+    <circle cx="34" cy="34" r="31" fill="url(#tap-iron)"/>
+    <circle cx="34" cy="34" r="25" fill="url(#tap-wood)"/>
+    <g clip-path="url(#tap-face)">
+      <path d="M19 8v52M29 8v52M40 8v52M50 8v52" fill="none" stroke="#3b251b" stroke-width="1.4"/>
+      <g fill="none" stroke="#bc8850" stroke-width=".65" opacity=".5">
+        <path d="M15 22c-3 8 2 13 0 22m8-26c3 8-3 16 0 27m11-31c-3 6 2 11 0 16m11-17c2 8-2 14 0 20m10-11c-2 6 1 12 0 18"/>
+        <path d="M24 29c-2 4-2 7 0 9m11-16c2 3 2 6 0 8m8 10c2 3 2 7 0 10"/>
+      </g>
+    </g>
+    <path d="M12 23a25 25 0 0 1 38-10" fill="none" stroke="#bd9b6a" stroke-width="1" opacity=".5"/>
+    <g fill="#a39a80" stroke-width="1.1">
+      <circle cx="34" cy="6" r="1.5"/><circle cx="34" cy="62" r="1.5"/>
+      <circle cx="6" cy="34" r="1.5"/><circle cx="62" cy="34" r="1.5"/>
+      <circle cx="14.2" cy="14.2" r="1.5"/><circle cx="53.8" cy="14.2" r="1.5"/>
+      <circle cx="14.2" cy="53.8" r="1.5"/><circle cx="53.8" cy="53.8" r="1.5"/>
+    </g>
+    <circle cx="34" cy="51" r="7" fill="url(#tap-brass)"/>
+    <path d="M30 49h8v20q0 5-4 5v9h-6V72q0-4 2-5z" fill="url(#tap-brass)"/>
+    <path d="M33 52v9" fill="none" stroke="#ecd08b" stroke-width="1.1"/>
+    <path d="M34 49V38" fill="none" stroke-width="3"/>
+    <path d="M30 28q4-3 8 0l-1 10h-6z" fill="#38251d"/>
+    <path d="M28 83h6" fill="none"/>
+  </g>
+</svg>

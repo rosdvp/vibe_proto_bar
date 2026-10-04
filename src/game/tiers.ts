@@ -1,14 +1,19 @@
 import type { BuildableCellType, GameState } from "../types";
 
-const TIER_RESEARCH_IDS: Record<"table" | "waiter-station" | "taps" | "counter", readonly [string, string]> = {
+const TIER_RESEARCH_IDS: Record<Exclude<BuildableCellType, "stairs">, readonly [string, string]> = {
   table: ["tables-ii", "tables-iii"],
   "waiter-station": ["waiters-ii", "waiters-iii"],
   taps: ["taps-ii", "taps-iii"],
   counter: ["counter-ii", "counter-iii"],
+  darts: ["darts-ii", "darts-iii"],
+  billiards: ["billiards-ii", "billiards-iii"],
+  "toilet-stall": ["toilet-stall-ii", "toilet-stall-iii"],
+  sink: ["sink-ii", "sink-iii"],
+  "hand-dryer": ["hand-dryer-ii", "hand-dryer-iii"],
 };
 
 export function requiredTierResearchId(type: BuildableCellType, nextLevel: number): string | null {
-  if (type === "stairs" || type === "toilet-stall" || type === "sink" || type === "hand-dryer" || type === "darts" || type === "billiards") return null;
+  if (type === "stairs") return null;
   if (nextLevel === 10) return TIER_RESEARCH_IDS[type][0];
   if (nextLevel === 20) return TIER_RESEARCH_IDS[type][1];
   return null;

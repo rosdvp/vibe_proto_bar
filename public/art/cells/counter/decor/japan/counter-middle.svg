@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160.947702060222" height="68.4278129587956" viewBox="0 0 160.947702060222 68.4278129587956" data-anchor="bottom-center">
+<title>Стойка со стульями — Япония</title>
+<g stroke="#0b0603" stroke-width="2.365" stroke-linejoin="round" stroke-linecap="round">
+<g transform="matrix(0.157686212361331 0 0 0.157686212361331 -16.3454833597464 0)" stroke-width="15"><rect x="32.5" y="53.55" width="1163" height="372.899246" fill="#3c2d2a"/></g>
+
+<!-- Три согласованные решётчатые вставки. -->
+<rect x="13" y="15" width="35" height="36" rx="1" fill="#897b65"/>
+<rect x="113" y="15" width="35" height="36" rx="1" fill="#897b65"/>
+<g stroke="#5b3f32" stroke-width="2"><path d="M24 16V50M37 16V50M14 27H47M14 39H47M124 16V50M137 16V50M114 27H147M114 39H147"/></g>
+<rect x="56" y="15" width="49" height="36" rx="1" fill="#897b65"/>
+<path d="M68 16V50M80.5 16V50M93 16V50M57 27H104M57 39H104" stroke="#5b3f32" stroke-width="2"/>
+<path d="M20 59H66M94 59H140" stroke="#795043" stroke-width="2"/>
+<path d="M71 58H89M74 61H86" stroke="#8e6a4f" stroke-width="1.5"/>
+
+<g transform="matrix(0.157686212361331 0 0 0.157686212361331 -16.3454833597464 0)" stroke-width="15"><rect x="61.5" y="345.555531" width="1105" height="30" rx="15" fill="#a06943"/></g>
+<g transform="matrix(0.157686212361331 0 0 0.157686212361331 -16.3454833597464 0)" stroke-width="15"><rect x="7.5" y="7.5" width="1213" height="47.7" rx="26.5" fill="#3c2d2a"/></g>
+<path d="M2 3.6H159" fill="none" stroke="#a06943" stroke-width=".9"/>
+</g></svg>

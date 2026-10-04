@@ -1,7 +1,7 @@
-import { CUSTOMER_TYPES, QUESTS } from "../config";
+import { CELL_DEFINITIONS, CUSTOMER_TYPES, DRINKS, QUESTS } from "../config";
 import type { GameState, QuestDefinition, UnlockFeature } from "../types";
-import { isCustomerTypeUnlocked, unlockFeature } from "./progression";
-import { barRating } from "./selectors";
+import { unlockFeature } from "./progression";
+import { customerRate, totalCustomerRate } from "./economy";
 
 export interface QuestProgress {
   quest: QuestDefinition;
@@ -19,16 +19,28 @@ export function currentQuestProgress(state: GameState): QuestProgress | null {
   const condition = quest.condition;
   let current = 0;
   if (condition.kind === "cell-count") {
-    current = state.cells.filter((cell) => cell.type === condition.cellType && (condition.floor === undefined || cell.y === condition.floor)).length;
+    current = state.cells.filter((cell) =>
+      (condition.cellType === undefined ? cell.type !== "entrance" && CELL_DEFINITIONS[cell.type].hasLevel : cell.type === condition.cellType) &&
+      cell.level >= (condition.minLevel ?? 0) &&
+      (condition.floor === undefined || cell.y === condition.floor)).length;
   } else if (condition.kind === "cell-level") {
-    current = Math.max(0, ...state.cells.filter((cell) => cell.type === condition.cellType).map((cell) => cell.level));
-  } else if (condition.kind === "menu-item") {
-    current = state.menu.includes(condition.drinkId) ? 1 : 0;
-  } else if (condition.kind === "bar-rating") {
-    current = barRating(state);
-  } else if (condition.kind === "customer-unlocked") {
+    current = Math.max(0, ...state.cells.filter((cell) =>
+      condition.cellType === undefined ? cell.type !== "entrance" && CELL_DEFINITIONS[cell.type].hasLevel : cell.type === condition.cellType).map((cell) => cell.level));
+  } else if (condition.kind === "cell-decor") {
+    current = state.cells.filter((cell) => cell.type === condition.cellType && (cell.decorId ?? "classic") !== "classic").length;
+  } else if (condition.kind === "total-customer-rate") {
+    current = totalCustomerRate(state);
+  } else if (condition.kind === "all-drinks-max") {
+    current = DRINKS.every((drink) => (state.drinkLevels[drink.id] ?? 0) >= drink.maxLevel) ? quest.target : 0;
+  } else if (condition.kind === "all-customers-max") {
+    current = CUSTOMER_TYPES.every((type) => (state.customerLevels[type.id] ?? 0) >= type.maxLevel) ? quest.target : 0;
+  } else if (condition.kind === "drink-level") {
+    current = state.drinkLevels[condition.drinkId] ?? 0;
+  } else if (condition.kind === "customer-level") {
+    current = state.customerLevels[condition.customerTypeId] ?? 0;
+  } else if (condition.kind === "customer-rate") {
     const customerType = CUSTOMER_TYPES.find((type) => type.id === condition.customerTypeId);
-    current = customerType && isCustomerTypeUnlocked(state, customerType) ? 1 : 0;
+    current = customerType ? customerRate(state, customerType) : 0;
   } else if (condition.kind === "research-completed") {
     current = state.research.completedIds.includes(condition.researchId) ? 1 : 0;
   } else {

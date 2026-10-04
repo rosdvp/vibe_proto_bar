@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="26" height="25" viewBox="0 0 26 25" data-anchor="bottom-center">
+  <title>Бормотуха — металлическая кружка, вид спереди</title>
+  <defs>
+    <linearGradient id="mash-metal" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#a3a39b"/>
+      <stop offset=".25" stop-color="#868982"/>
+      <stop offset=".6" stop-color="#737772"/>
+      <stop offset="1" stop-color="#484d49"/>
+    </linearGradient>
+  </defs>
+  <g stroke="#0b0805" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M18.7 5 H20.5 Q25.3 5 25.3 12.5 Q25.3 20 20.5 20 H18.7 V16.8 H20.4 Q22.1 16.8 22.1 12.5 Q22.1 8.2 20.4 8.2 H18.7Z" fill="url(#mash-metal)"/>
+    <rect x="1.1" y="1" width="18.5" height="23.35" rx="1.6" fill="url(#mash-metal)"/>
+    <path d="M3 3.3 H5.1 V22 H3Z" fill="#d0cdbb" opacity=".28" stroke="none"/>
+    <path d="M17 3.3 V22" fill="none" stroke="#363c37" stroke-width=".7" opacity=".55"/>
+    <path d="M2.7 2.6 H18" fill="none" stroke="#bab9ac" stroke-width=".8"/>
+  </g>
+</svg>

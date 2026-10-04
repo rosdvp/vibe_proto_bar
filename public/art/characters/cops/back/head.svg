@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" width="46" height="46" viewBox="0 0 46 46" data-anchor="bottom-center">
+  <g id="artwork" transform="matrix(0.09583333333333334 0 0 0.10267857142857142 23 27.723214285714285)">
+    <defs>
+      <linearGradient id="cap" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#3b4a61" />
+        <stop offset="1" stop-color="#1c273a" />
+      </linearGradient>
+      <linearGradient id="skin" x1="0" y1="0" x2=".7" y2="1">
+        <stop stop-color="#ffc47c" />
+        <stop offset="1" stop-color="#e9a05c" />
+      </linearGradient>
+      <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+        <stop stop-color="#382b20" />
+        <stop offset="1" stop-color="#241c18" />
+      </linearGradient>
+      <g id="ear">
+        <ellipse rx="29" ry="44" fill="url(#skin)" stroke="#090807" stroke-width="14" />
+        <ellipse cx="5" cy="5" rx="12" ry="28" fill="#d69150" />
+      </g>
+    </defs>
+    <g stroke="#090807" stroke-linejoin="round" stroke-linecap="round">
+      <use href="#ear" x="-185" y="10" />
+      <use href="#ear" x="185" y="10" />
+      <path d="M-164-37 H164 V27 Q164 95 102 137 Q0 190-102 137 Q-164 95-164 27Z" fill="url(#skin)" stroke-width="14" />
+      <path d="M-169-69 Q0-105 169-69 V30 Q159 96 118 116 L112 103 Q87 147 42 134 Q0 158-42 134 Q-87 147-112 103 L-118 116 Q-159 96-169 30Z" fill="url(#hair)" stroke-width="14" />
+      <path d="M-192-82 L-201-155-129-218 0-239 129-218 201-155 192-82Z" fill="url(#cap)" stroke-width="15" />
+      <path d="M-188-140 L-121-201 0-222 121-201 188-140" fill="none" stroke="#60708b" stroke-width="10" />
+      <path d="M-178-83 Q0-48 178-83 L171-34 Q0 4-171-34Z" fill="#243046" stroke-width="12" />
+      <path d="M-158-56 Q0-23 158-56" fill="none" stroke="#a99467" stroke-width="9" />
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,182 @@
+/* Общая тема интерфейса; геометрия и оборудование карты остаются в map.css. */
+:root {
+  --font-body: "Roboto Condensed", "Arial Narrow", Arial, sans-serif;
+  --font-heading: "Oswald", "Arial Narrow", Arial, sans-serif;
+  --ui-text: #eee3cc;
+  --ui-secondary: #bfb19a;
+  --ui-gold: #b89b68;
+  --ui-outline: #000;
+  --ui-card: #39362f;
+  --ui-inset: #272722;
+  --ui-money-circle: #243d29;
+  --ui-customer-circle: #482726;
+  --ui-staff-circle: #22394b;
+  --ui-energy-fill: #927447;
+  --ui-surface: linear-gradient(135deg, #424035, #302e29);
+  --ui-wood: repeating-linear-gradient(0deg, transparent 0 9px, rgb(15 12 10 / 12%) 9px 10px), linear-gradient(110deg, #594333, #382b24);
+  font-family: var(--font-body);
+  color: var(--ui-text);
+  background: #1d201e;
+}
+body { background: radial-gradient(ellipse at top, #383930, #171b1b); }
+.game-frame { border-color: var(--ui-outline); box-shadow: 0 12px 40px rgb(0 0 0 / 45%); }
+
+:where(.topbar, .bottom-nav, .hold-controls, .modal-shade, .focus-hud, .quest-chain,
+  .offer-icon, .offer-shade, .energy-shade, .service-panel) {
+  --line: var(--ui-outline);
+  --paper: var(--ui-inset);
+  --panel: var(--ui-card);
+  --muted: #a69982;
+  --green: #a6c187;
+  --green-soft: #3c4d36;
+  --red: #d4907e;
+  --red-soft: #573a34;
+  --orange: #d2b277;
+  --orange-soft: #594933;
+  --blue: #a2bdc3;
+  --blue-soft: #344b51;
+  --purple: #bba0bf;
+  --purple-soft: #4f3e51;
+  color: var(--ui-text);
+}
+.game-frame button, .service-panel button { font-family: var(--font-heading); font-weight: 600; }
+:is(.panel-title h2, .cell-card h2, .static-cell-title, .entity-card > strong,
+  .build-option > strong, .research-heading strong, .build-group h3, .quest-card > strong,
+  .unlock-panel > strong, .offer-result h3, .resource strong, .remove-confirm h2) {
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+.topbar { background: var(--ui-wood); box-shadow: inset 0 -1px var(--ui-gold), 0 3px 0 rgb(0 0 0 / 30%); }
+.resource::before { background: var(--ui-inset); box-shadow: inset 0 1px 0 rgb(255 236 198 / 10%); }
+.resource.arrivals::before { background: linear-gradient(to right, #543e35 var(--arrival-progress), var(--ui-inset) var(--arrival-progress)); }
+.bottom-nav button { background: var(--ui-wood); box-shadow: inset 0 0 0 1px #796349, 0 3px 0 #101313; }
+.bottom-nav .close-nav { border-color: var(--red); background: var(--red-soft); }
+.entity-screen .bottom-nav .close-nav { border-color: var(--red); }
+.service-panel button { color: var(--ui-text); background: var(--ui-card); }
+
+.modal-shade { background: rgb(12 15 14 / 72%); }
+.offer-shade, .energy-backdrop, .remove-confirm-shade { background: rgb(12 15 14 / 80%); }
+:is(.panel, .build-list, .cell-card, .unlock-panel, .offer-panel, .energy-panel, .remove-confirm) {
+  color: var(--ui-text);
+  border-color: var(--line);
+  background: var(--ui-surface);
+  box-shadow: inset 0 0 0 1px #75634a, 0 5px 0 rgb(0 0 0 / 32%);
+}
+:is(.menu-panel, .customers-panel, .research-panel) { background: var(--ui-surface); }
+:is(.menu-panel, .customers-panel, .research-panel) .panel-title,
+.panel-title, .build-group h3, .cell-card h2, .static-cell-title {
+  color: var(--ui-text);
+  border-color: var(--line);
+  background: var(--ui-wood);
+  box-shadow: inset 0 0 0 1px #80684b;
+}
+:is(.entity-card, .research-card, .build-option) {
+  color: var(--ui-text);
+  background: linear-gradient(110deg, #454036, #35352f);
+  border-color: var(--line);
+  box-shadow: inset 0 1px 0 rgb(240 219 179 / 12%), 0 3px 0 rgb(0 0 0 / 22%);
+}
+:is(.entity-details, .research-description, .level-effects, .requirement, .customer-type .requirement, .build-badges > span, .cell-badges span) {
+  color: var(--ui-text);
+  background: var(--ui-inset);
+}
+.entity-layout .entity-details .entity-locked { color: var(--ui-secondary); }
+.build-locked-note, .entity-max { color: var(--ui-secondary); }
+.research-card.locked .research-description { color: var(--ui-secondary); }
+.build-option.selected { border-color: var(--green); box-shadow: inset 0 0 0 1px #799161, 0 0 0 3px #799161; }
+.build-option.locked .build-picture { background: transparent; }
+.cell-issue { color: #f4cdb8; border-color: #8a5546; background: #4d302b; }
+.level-progress { border-color: var(--line); background: var(--paper); }
+.level-progress i { background: var(--green); }
+
+:is(.entity-upgrade, .research-action, .primary-button, .build-cell-button, .move-confirm,
+  .level-layout button, .hold-button, .energy-refill, .offer-start, .offer-actions button, .quest-claim) {
+  color: var(--ui-text);
+  border-color: var(--line);
+  background: linear-gradient(#536046, #374930);
+  box-shadow: inset 0 0 0 1px #84956a, 0 3px 0 rgb(0 0 0 / 32%);
+}
+:is(.entity-upgrade, .research-action, .primary-button) > span:not(.attention-indicator) { color: #d4dfb9; }
+.primary-button > span .color-dot { color: var(--green); }
+:is(.cell-actions button, .remove-confirm button, .focus-arrow) {
+  border-color: var(--line);
+  color: var(--ui-text);
+  background: var(--ui-wood);
+  box-shadow: inset 0 0 0 1px #80684b, 0 3px 0 rgb(0 0 0 / 28%);
+}
+.cell-actions button:nth-child(1), .remove-confirm button:first-child, .square-close {
+  border-color: #795046;
+  background: linear-gradient(#68473b, #442d28);
+}
+.cell-actions button:nth-child(2), .offer-actions .offer-claim { background: var(--ui-wood); }
+.cell-actions button:nth-child(3) { background: var(--purple-soft); }
+.hold-button.pressed { background: #2e4129; box-shadow: inset 0 3px 6px rgb(0 0 0 / 45%); }
+.hold-energy strong { color: var(--ui-text); }
+.hold-energy::before { background: linear-gradient(to left, var(--ui-energy-fill) var(--energy-progress), var(--paper) var(--energy-progress)); }
+.hold-overheat-fill { stroke: #c6a15e; }
+.hold-overheat.cooldown .hold-overheat-fill { stroke: var(--red); }
+.offer-icon:disabled,
+:is(.topbar, .bottom-nav, .hold-controls, .modal-shade, .focus-hud, .offer-shade, .energy-shade, .service-panel) button:disabled,
+:is(.topbar, .bottom-nav, .hold-controls, .modal-shade, .focus-hud, .offer-shade, .energy-shade, .service-panel) button[aria-disabled="true"] {
+  color: #b5aa94 !important;
+  background: #363831 !important;
+  border-color: var(--ui-outline) !important;
+  box-shadow: inset 0 0 0 1px #484c42;
+}
+button:focus-visible { outline-color: var(--ui-gold); }
+
+.game-frame button:not(:disabled):not([aria-disabled="true"]):not(.map-cell):active { filter: brightness(.92); }
+
+.quest-card { color: var(--ui-text); background: var(--ui-surface); box-shadow: inset 0 0 0 1px #75634a; }
+.quest-point { background: #36392f; }
+.quest-point.claimed, .quest-point.complete { border-color: var(--line); background: #42503a; }
+.quest-point.current:not(.complete) { border-color: var(--line); background: #594933; }
+.quest-point.past-stack { color: #819562; }
+.quest-segment.complete { background: #819562; }
+.quest-progress { background: linear-gradient(to right, #60754b var(--quest-progress), var(--paper) var(--quest-progress)); }
+.quest-progress span { font-family: var(--font-body); color: var(--ui-text); text-shadow: 0 1px 1px #171719; }
+.quest-claim span, .quest-claim strong { color: #d4dfb9; }
+.energy-progress i { background: #a58b56; border-color: #c6a15e; }
+.energy-progress strong { color: var(--ui-text); text-shadow: 0 1px 1px #171719; }
+.offer-slot { border-color: var(--line); background: var(--ui-inset); box-shadow: inset 0 0 0 1px #6f5f48, inset 0 3px 8px rgb(0 0 0 / 45%); }
+.offer-icon { background: var(--ui-wood); border-color: var(--ui-outline); box-shadow: inset 0 0 0 1px #80684b; }
+
+.offer-icon small { color: var(--ui-text); border-top-color: var(--ui-outline); }
+.offer-ad-symbol { border-color: #000; background: #bd4038; }
+.payment-popup { font-family: var(--font-body); }
+
+
+/* Общие контуры, типографика и стабильная геометрия навигации. */
+.game-frame button, .service-panel button { border-color: var(--ui-outline) !important; }
+.bottom-nav { grid-template-rows: minmax(0, 1fr); }
+.bottom-nav button { height: 100%; min-height: 0; padding: 0; }
+.bottom-nav .close-nav > i { width: 39px; height: 39px; padding: 0; }
+.panel-title { top: -40px; left: 20%; right: 20%; height: 40px; border: 4px solid var(--ui-outline); border-bottom: 0; border-radius: 6px 6px 0 0; }
+.panel-title h2 { font-size: 22px; }
+.unlock-title { left: 8%; right: 8%; }
+:is(.panel-title h2, .static-cell-title, .cell-card h2, .build-group h3,
+  .entity-card > strong, .build-option > strong, .research-heading strong,
+  .resource strong, .game-frame button, .entity-details b, .level-effects b, .entity-level small,
+  .entity-max, .research-heading b, .research-timer strong, .level-layout strong, .level-layout > b,
+  .quest-card > strong, .quest-progress span, .offer-result h3, .offer-result strong,
+  .energy-progress strong, .hold-energy strong, .remove-confirm h2,
+  .entity-upgrade > span, .research-action > span:not(.attention-indicator),
+  .primary-button > span, .hold-button strong) {
+  -webkit-text-stroke: .30em #000;
+  paint-order: stroke fill;
+  text-shadow: none;
+}
+:is(.research-description, .build-locked-note, .build-badges, .cell-badges, .requirement em) {
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
+.hold-energy::before { border-color: var(--ui-outline); }
+
+/* Круглые подложки значков постоянных ресурсных плашек. */
+.resource > i { border: 3px solid var(--line); border-radius: 50%; background: var(--ui-inset); }
+.hold-energy > i { border: 4px solid var(--ui-outline); border-radius: 50%; background: var(--ui-energy-fill); }
+
+.resource.money > i, :is(.build-badges, .cell-badges) .color-dot.money { background: var(--ui-money-circle); }
+.resource.arrivals > i, :is(.build-badges, .cell-badges) .color-dot.people { background: var(--ui-customer-circle); }
+:is(.build-badges, .cell-badges) .color-dot.staff { background: var(--ui-staff-circle); }

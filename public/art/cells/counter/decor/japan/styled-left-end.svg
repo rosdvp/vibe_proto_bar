@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="17.3454833597464" height="68.4278129587956" viewBox="0 0 17.3454833597464 68.4278129587956" data-anchor="bottom-center">
+  <title>Край декора japan: left-end</title>
+  
+  <g id="artwork" transform="matrix(0.157686212361331 0 0 0.157686212361331 0 0)">
+    <g stroke="#0b0603" stroke-width="15" stroke-linejoin="round">
+    <rect x="32.5" y="53.55" width="1163" height="372.899246" fill="#3c2d2a"/>
+    
+    <g fill="#a06943">
+      <circle cx="54" cy="360.555531" r="30" fill="#a06943"/>
+      <rect x="61.5" y="345.555531" width="1105" height="30" rx="15"/>
+    </g>
+    <rect x="7.5" y="7.5" width="1213" height="47.7" rx="26.5" fill="#3c2d2a"/>
+  </g>
+  </g>
+</svg>

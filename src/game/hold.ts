@@ -7,6 +7,17 @@ export interface HoldAdvanceResult {
   depleted: boolean;
 }
 
+export function energyRecoverySeconds(state: GameState): number {
+  const missing = Math.max(0, CONFIG.holdEnergyCapacity - state.hold.energy);
+  if (missing === 0) return 0;
+  const ticks = Math.ceil(missing / CONFIG.holdEnergyRechargeAmount);
+  return Math.max(0, ticks * CONFIG.holdEnergyRechargeInterval - state.hold.rechargeElapsed) / state.speed;
+}
+
+export function refillEnergy(state: GameState): void {
+  state.hold.energy = CONFIG.holdEnergyCapacity;
+}
+
 export function advanceHold(
   state: GameState,
   realSeconds: number,
@@ -70,6 +81,6 @@ export function advanceHold(
     }
   }
 
-  recordHoldSeconds(state, boostedSeconds / state.speed);
+  recordHoldSeconds(state, boostedSeconds);
   return { boostedSeconds, depleted };
 }

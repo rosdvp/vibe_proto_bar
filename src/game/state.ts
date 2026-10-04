@@ -1,7 +1,9 @@
-import { BUILDABLE_CELL_TYPES, CELL_DEFINITIONS, CONFIG, DRINKS, QUESTS } from "../config";
+import { BUILDABLE_CELL_TYPES, CELL_DEFINITIONS, CONFIG, CUSTOMER_TYPES, DRINKS, QUESTS } from "../config";
 import type { GameState } from "../types";
 import { syncPersonnel } from "./personnel";
 import { RESEARCHES, researchDuration } from "./research";
+import { isOfferState } from "./offers";
+import { createDecorState, isDecorState } from "./decor";
 
 const CELL_TYPES = new Set(["entrance", "counter", "taps", "waiter-station", "table", "stairs", "toilet-stall", "sink", "hand-dryer", "darts", "billiards"]);
 const CUSTOMER_PHASES = new Set([
@@ -36,7 +38,7 @@ function isGameState(value: unknown): value is GameState {
   if (!value || typeof value !== "object") return false;
   const state = value as Partial<GameState>;
   const holdValid = isRecord(state.hold) &&
-    hasNumber(state.hold, "energy") && state.hold.energy >= 0 && state.hold.energy <= CONFIG.holdEnergyCapacity &&
+    hasNumber(state.hold, "energy") && state.hold.energy >= 0 &&
     hasNumber(state.hold, "heat") && state.hold.heat >= 0 && state.hold.heat <= CONFIG.holdOverheatDuration &&
     hasNumber(state.hold, "cooldownRemaining") && state.hold.cooldownRemaining >= 0 &&
     hasNumber(state.hold, "rechargeElapsed") && state.hold.rechargeElapsed >= 0 && state.hold.rechargeElapsed < CONFIG.holdEnergyRechargeInterval &&
@@ -85,6 +87,7 @@ function isGameState(value: unknown): value is GameState {
     (customer.bartenderId === null || typeof customer.bartenderId === "string") &&
     (customer.waiterId === null || typeof customer.waiterId === "string") &&
     hasNumber(customer, "waitingElapsed") &&
+    (customer.isPrize === undefined || typeof customer.isPrize === "boolean") &&
     (customer.waitingDirection === -1 || customer.waitingDirection === 1) &&
     (customer.visitedExtras === undefined || (Array.isArray(customer.visitedExtras) && customer.visitedExtras.every((activity) => ["toilet", "darts", "billiards"].includes(activity)))) &&
     (customer.repeatOrdered === undefined || typeof customer.repeatOrdered === "boolean") &&
@@ -130,20 +133,26 @@ function isGameState(value: unknown): value is GameState {
     state.saveVersion === CONFIG.saveVersion &&
     Number.isFinite(state.money) &&
     (state.speed === 1 || state.speed === 5 || state.speed === 10) &&
-    cellsValid &&
-    Array.isArray(state.menu) && state.menu.every((item) => typeof item === "string") &&
+    cellsValid && isDecorState(state.decor, state.cells!) &&
+    isRecord(state.drinkLevels) && DRINKS.every((drink) => hasNumber(state.drinkLevels!, drink.id) && Number.isInteger(state.drinkLevels![drink.id]) && (state.drinkLevels![drink.id] as number) >= 0 && (state.drinkLevels![drink.id] as number) <= drink.maxLevel) &&
+    isRecord(state.customerLevels) && CUSTOMER_TYPES.every((type) => hasNumber(state.customerLevels!, type.id) && Number.isInteger(state.customerLevels![type.id]) && (state.customerLevels![type.id] as number) >= 0 && (state.customerLevels![type.id] as number) <= type.maxLevel) &&
     Array.isArray(state.unlockedFeatureIds) && state.unlockedFeatureIds.every((id) => typeof id === "string") &&
     Array.isArray(state.unseenUnlockIds) && state.unseenUnlockIds.every((id) => typeof id === "string" && state.unlockedFeatureIds!.includes(id)) &&
     bartendersValid &&
     waitersValid &&
     customersValid &&
     typeof state.customerArrivalRemaining === "number" && Number.isFinite(state.customerArrivalRemaining) && state.customerArrivalRemaining >= 0 &&
-    typeof state.customerArrivalRating === "number" && Number.isFinite(state.customerArrivalRating) && state.customerArrivalRating >= 0 &&
+    typeof state.customerArrivalsStarted === "boolean" &&
+    typeof state.customerArrivalRate === "number" && Number.isFinite(state.customerArrivalRate) && state.customerArrivalRate >= 0 &&
+    isRecord(state.arrivalTypeCarry) && CUSTOMER_TYPES.every((type) => hasNumber(state.arrivalTypeCarry!, type.id)) &&
+    Array.isArray(state.arrivalTypeBag) && state.arrivalTypeBag.every((id) => CUSTOMER_TYPES.some((type) => type.id === id)) &&
+    typeof state.arrivalMinuteRemaining === "number" && Number.isFinite(state.arrivalMinuteRemaining) && state.arrivalMinuteRemaining >= 0 &&
     Array.isArray(state.everUnlockedCustomerTypeIds) && state.everUnlockedCustomerTypeIds.every((id) => typeof id === "string") &&
     Number.isFinite(state.nextEntityId) &&
     holdValid &&
     questsValid &&
-    researchValid
+    researchValid &&
+    (state.offers === undefined || isOfferState(state.offers))
   );
 }
 
@@ -175,22 +184,28 @@ function restoreMovementPoints(state: GameState): GameState {
 
 export function createGame(): GameState {
   return {
+    decor: createDecorState(),
+    offers: { cooldownRemaining: 0, pending: null },
     saveVersion: CONFIG.saveVersion,
     money: CONFIG.startingMoney,
     speed: 1,
     cells: [{ id: "cell-0", x: 0, y: 0, type: "entrance", level: 1 }],
-    menu: [],
+    drinkLevels: Object.fromEntries(DRINKS.map((drink) => [drink.id, 0])),
+    customerLevels: Object.fromEntries(CUSTOMER_TYPES.map((type) => [type.id, type.id === "sailors" ? 1 : 0])),
     unlockedFeatureIds: [
-      ...DRINKS.filter((drink) => !drink.locked).map((drink) => `menu-item:${drink.id}`),
       ...BUILDABLE_CELL_TYPES.filter((type) => !CELL_DEFINITIONS[type].locked).map((type) => `cell-type:${type}`),
     ],
     unseenUnlockIds: [],
     bartenders: [],
     waiters: [],
     customers: [],
-    customerArrivalRemaining: 60 / CONFIG.customerRatePoints[0]!.customersPerMinute,
-    customerArrivalRating: 0,
-    everUnlockedCustomerTypeIds: [],
+    customerArrivalRemaining: 30,
+    customerArrivalsStarted: false,
+    customerArrivalRate: 2,
+    arrivalTypeCarry: Object.fromEntries(CUSTOMER_TYPES.map((type) => [type.id, 0])),
+    arrivalTypeBag: [],
+    arrivalMinuteRemaining: 60,
+    everUnlockedCustomerTypeIds: ["sailors"],
     nextEntityId: 1,
     hold: {
       energy: CONFIG.holdEnergyCapacity,
@@ -209,10 +224,8 @@ export function createGame(): GameState {
 
 export function createNewGamePlus(): GameState {
   const state = createGame();
-  state.research.completedIds = RESEARCHES.filter((research) => !research.lockedUntilProgress).map((research) => research.id);
   state.unlockedFeatureIds = [...new Set([
     ...state.unlockedFeatureIds,
-    ...DRINKS.map((drink) => `menu-item:${drink.id}`),
     ...BUILDABLE_CELL_TYPES.map((type) => `cell-type:${type}`),
     ...QUESTS.flatMap((quest) => (quest.unlocks ?? []).map((feature) => `${feature.kind}:${feature.id}`)),
   ])];
@@ -225,6 +238,19 @@ export function loadGame(storage: Pick<Storage, "getItem"> = localStorage): Game
     if (!raw) return createGame();
     const state: unknown = JSON.parse(raw);
     if (!isGameState(state)) return createGame();
+    state.hold.energy = Math.min(state.hold.energy, CONFIG.holdEnergyCapacity);
+    if (state.offers === undefined) {
+      state.offers = { cooldownRemaining: 0, pending: null };
+      const lagerQuestIndex = QUESTS.findIndex((quest) => quest.id === "open-lager");
+      const previousFeatures = [
+        ...BUILDABLE_CELL_TYPES.map((type) => `cell-type:${type}`),
+        ...QUESTS.flatMap((quest) => (quest.unlocks ?? []).map((feature) => `${feature.kind}:${feature.id}`)),
+      ].filter((id) => id !== "other:gift-offers");
+      const wasNewGamePlus = previousFeatures.every((id) => state.unlockedFeatureIds.includes(id));
+      if ((lagerQuestIndex >= 0 && state.quests.currentIndex > lagerQuestIndex) || wasNewGamePlus) {
+        if (!state.unlockedFeatureIds.includes("other:gift-offers")) state.unlockedFeatureIds.push("other:gift-offers");
+      }
+    }
     restoreMovementPoints(state);
     syncPersonnel(state);
     return state;

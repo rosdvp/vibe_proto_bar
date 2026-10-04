@@ -1,6 +1,7 @@
 import { QUESTS } from "../config";
 import { currentQuestProgress } from "../game";
 import type { GameState } from "../types";
+import { uiIcon } from "./icons";
 
 interface VisiblePoint {
   index: number;
@@ -45,7 +46,7 @@ export function renderQuestChain(state: GameState): string {
   const percent = progress.quest.target > 0 ? current / progress.quest.target * 100 : 100;
   const currentLabel = Number.isInteger(current) ? String(current) : current.toFixed(1);
   const card = progress.complete
-    ? `<button class="quest-claim" data-action="claim-quest" aria-label="Собрать награду ${progress.quest.reward}"><span>+</span><i></i><strong>${progress.quest.reward}</strong></button>`
+    ? `<button class="quest-claim" data-action="claim-quest" aria-label="Собрать награду ${progress.quest.reward}"><span>+</span><i>${uiIcon("money")}</i><strong>${progress.quest.reward}</strong></button>`
     : `<div class="quest-card"><strong>${progress.quest.title}</strong><div class="quest-progress" style="--quest-progress:${percent}%" role="progressbar" aria-valuemin="0" aria-valuemax="${progress.quest.target}" aria-valuenow="${current}"><span>${currentLabel} / ${progress.quest.target}</span></div></div>`;
   return `<section class="quest-chain"><div class="quest-track">${pointMarkup}</div>${card}</section>`;
 }

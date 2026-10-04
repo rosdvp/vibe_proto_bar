@@ -1,6 +1,5 @@
-import type { BuildableCellType, DrinkCategory, GameState, UnlockFeature } from "../types";
+import type { BuildableCellType, GameState, UnlockFeature } from "../types";
 import type { PaymentEvent } from "../game/simulation";
-import type { ResearchCategory } from "../game/research";
 
 export type BottomPanel = "menu" | "customers" | "research" | null;
 
@@ -11,6 +10,11 @@ export interface MovePreview {
 }
 
 export interface UiState {
+  decorCellId: string | null;
+  decorScrollTarget: string | null;
+  energyOpen: boolean;
+  offerOpen: boolean;
+  offerElapsed: number | null;
   focusX: number | null;
   focusY: number | null;
   panel: BottomPanel;
@@ -18,10 +22,9 @@ export interface UiState {
   removeConfirmCellId: string | null;
   movePreview: MovePreview | null;
   selectedBuild: BuildableCellType | null;
-  menuCategory: DrinkCategory;
-  researchCategory: ResearchCategory;
   panX: number;
   panY: number;
+  mapZoom: number;
   holdPressed: boolean;
   unlockQueue: UnlockFeature[];
   paymentPopups: Array<PaymentEvent & { elapsed: number }>;
@@ -29,6 +32,11 @@ export interface UiState {
 
 export function createUiState(): UiState {
   return {
+    decorCellId: null,
+    decorScrollTarget: null,
+    energyOpen: false,
+    offerOpen: false,
+    offerElapsed: null,
     focusX: null,
     focusY: null,
     panel: null,
@@ -36,10 +44,9 @@ export function createUiState(): UiState {
     removeConfirmCellId: null,
     movePreview: null,
     selectedBuild: null,
-    menuCategory: "keg",
-    researchCategory: "bar",
     panX: 0,
     panY: 0,
+    mapZoom: 1,
     holdPressed: false,
     unlockQueue: [],
     paymentPopups: [],

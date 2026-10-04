@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160.947702060222" height="68.4278129587956" viewBox="0 0 160.947702060222 68.4278129587956" data-anchor="bottom-center">
+<title>Стойка со стульями — cabaret</title>
+<g stroke="#0b0603" stroke-width="2.365" stroke-linejoin="round" stroke-linecap="round">
+<g transform="matrix(0.157686212361331 0 0 0.157686212361331 -16.3454833597464 0)" stroke-width="15"><rect x="32.5" y="53.55" width="1163" height="372.899246" fill="#4f252f"/></g>
+
+<!-- Velvet side panels and a gilded cabaret fan in the central medallion. -->
+<rect x="13" y="15" width="35" height="35" rx="5" fill="#62303e"/>
+<rect x="113" y="15" width="35" height="35" rx="5" fill="#62303e"/>
+<g fill="none" stroke="#7c4954" stroke-width="1.3">
+<path d="M15 23L30 16L46 23L30 32ZM15 40L30 32L46 40L30 49Z"/>
+<path d="M115 23L130 16L146 23L130 32ZM115 40L130 32L146 40L130 49Z"/>
+</g>
+<g fill="#9c815e" stroke-width="1"><circle cx="30" cy="32" r="1.6"/><circle cx="130" cy="32" r="1.6"/></g>
+<path d="M55 18Q80 10 106 18V47Q80 55 55 47Z" fill="#312129"/>
+<path d="M80 45L61 28Q63 21 68 20L78 39L76 18Q80 15 85 18L83 39L94 20Q100 21 100 28Z" fill="#937653" stroke-width="1.7"/>
+<path d="M80 40L68 25M81 40V21M83 40L94 25" fill="none" stroke="#87543c" stroke-width="1.1"/>
+<path d="M75 44H87V48H75Z" fill="#9d835f" stroke-width="1.2"/>
+<path d="M18 60Q36 54 51 60M109 60Q125 54 144 60" fill="none" stroke="#907451" stroke-width="1.4"/>
+
+<g transform="matrix(0.157686212361331 0 0 0.157686212361331 -16.3454833597464 0)" stroke-width="15"><rect x="61.5" y="345.555531" width="1105" height="30" rx="15" fill="#bd975d"/></g>
+<g transform="matrix(0.157686212361331 0 0 0.157686212361331 -16.3454833597464 0)" stroke-width="15"><rect x="7.5" y="7.5" width="1213" height="47.7" rx="26.5" fill="#4f252f"/></g>
+<path d="M2 3.6H159" fill="none" stroke="#bd975d" stroke-width=".9"/>
+</g></svg>

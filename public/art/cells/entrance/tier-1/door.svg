@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="92.4" height="149.04" viewBox="0 0 92.4 149.04" data-anchor="bottom-center">
+  <title>Закрытая арочная дверь входа</title>
+  <defs>
+    <linearGradient id="door-wood" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#624232"/>
+      <stop offset=".5" stop-color="#795139"/>
+      <stop offset="1" stop-color="#5d3e30"/>
+    </linearGradient>
+    <linearGradient id="door-brass" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#d5b162"/>
+      <stop offset="1" stop-color="#98733c"/>
+    </linearGradient>
+    <clipPath id="door-panel"><path vector-effect="non-scaling-stroke" d="M9 183V46a35 35 0 0 1 70 0v137Z"/></clipPath>
+  </defs>
+  <g transform="scale(1.05 .81)" stroke="#0b0603" stroke-width="2.365" stroke-linejoin="round" stroke-linecap="round">
+    <path vector-effect="non-scaling-stroke" d="M2 183V45a42 42 0 0 1 84 0v138Z" fill="#39291f"/>
+    <path vector-effect="non-scaling-stroke" d="M9 183V46a35 35 0 0 1 70 0v137Z" fill="url(#door-wood)"/>
+    <g clip-path="url(#door-panel)" fill="none">
+      <path vector-effect="non-scaling-stroke" d="M26 12v171M44 10v173M62 12v171" stroke="#42291d" stroke-width="1.5"/>
+      <g stroke="#a5764c" stroke-width=".7" opacity=".5">
+        <path vector-effect="non-scaling-stroke" d="M19 59c-3 16 2 27 0 43m-1 19c2 11-2 21 0 36M35 34c2 17-2 24 0 39m0 43c-3 14 2 25 0 43M54 43c-2 11 2 23 0 34m0 57c2 12-2 19 0 29M71 64c2 9-2 20 0 30"/>
+      </g>
+    </g>
+    <path vector-effect="non-scaling-stroke" d="M6 65V45a38 38 0 0 1 63-29" fill="none" stroke="#72513a" stroke-width="1"/>
+    <circle vector-effect="non-scaling-stroke" cx="67" cy="123" r="7.5" fill="#39291f"/>
+    <circle vector-effect="non-scaling-stroke" cx="67" cy="123" r="5.5" fill="url(#door-brass)"/>
+    <path vector-effect="non-scaling-stroke" d="M65 120q2-2 4 0" fill="none" stroke="#ead08c" stroke-width="1"/>
+  </g>
+</svg>

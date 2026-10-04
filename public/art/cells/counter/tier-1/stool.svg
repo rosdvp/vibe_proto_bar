@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="42.31385415742958" height="42.256451172002016" viewBox="0 0 42.31385415742958 42.256451172002016" data-anchor="bottom-center">
+  <g id="artwork" transform="matrix(0.05438798734888121 0 0 0.054387987348881214 0 0)">
+<title>Барный табурет — векторный предпросмотр</title>
+  <defs>
+    <linearGradient id="stool-wood" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#402d24"/>
+      <stop offset="0.5" stop-color="#443026"/>
+      <stop offset="1" stop-color="#3a2922"/>
+    </linearGradient>
+    <linearGradient id="stool-seat" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9d2b3e"/>
+      <stop offset="0.65" stop-color="#9a293d"/>
+      <stop offset="1" stop-color="#93273b"/>
+    </linearGradient>
+    <linearGradient id="stool-brass" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#cfad5d"/>
+      <stop offset="0.5" stop-color="#cca958"/>
+      <stop offset="1" stop-color="#c3a153"/>
+    </linearGradient>
+    <path id="stool-leg" d="M146 194H262L153 745.944565Q151 760.944565 136 760.944565H32Q16 760.944565 16 744.944565Z"/>
+  </defs>
+  <g stroke="#0b0603" stroke-width="32" stroke-linejoin="round">
+    <g fill="url(#stool-wood)">
+      <use href="#stool-leg"/>
+      <use href="#stool-leg" transform="translate(778 0) scale(-1 1)"/>
+    </g>
+    <rect x="156" y="441.734255" width="466" height="92" rx="40" fill="url(#stool-brass)"/>
+    <rect x="73" y="16" width="632" height="180" rx="90" fill="url(#stool-seat)"/>
+  </g>
+  </g>
+</svg>

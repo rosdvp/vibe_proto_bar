@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="50" height="42.256451172002016" viewBox="0 0 50 42.256451172002016" data-anchor="bottom-center">
+  <title>Стул сбоку: сиденье и ножки, лицом вправо</title>
+  <defs><linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#795139"/><stop offset=".5" stop-color="#624232"/><stop offset="1" stop-color="#5d3e30"/></linearGradient></defs>
+  <g stroke="#0b0603" stroke-width="2.365" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M6 8h5v33.073951172002H6zM41 8h5v33.073951172002h-5z" fill="url(#wood)"/>
+    <rect x="10" y="27" width="32" height="4" rx="2" fill="#cbaa5b"/>
+    <rect x="3" y="2" width="44" height="8" rx="3" fill="#93273b"/>
+    <path d="M7 4h35" stroke="#b14952" stroke-width=".8"/>
+  </g>
+</svg>

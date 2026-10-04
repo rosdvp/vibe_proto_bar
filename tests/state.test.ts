@@ -1,16 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { BUILDABLE_CELL_TYPES, CONFIG, DRINKS, QUESTS } from "../src/config";
+import { BUILDABLE_CELL_TYPES, CONFIG, QUESTS } from "../src/config";
+import { workSpeedBonusPercent } from "../src/game/selectors";
 import { buildCell, createGame, createNewGamePlus, loadGame, saveGame, syncPersonnel, unlockFeature } from "../src/game";
 
 test("новая игра+ разблокирует все фичи при обычном стартовом состоянии", () => {
   const state = createNewGamePlus();
-  assert.equal(state.money, createGame().money);
-  assert.deepEqual(state.cells, createGame().cells);
-  assert.deepEqual(state.menu, []);
-  assert.equal(state.quests.currentIndex, 0);
+  const regular = createGame();
+  assert.deepEqual({ ...state, unlockedFeatureIds: regular.unlockedFeatureIds }, regular);
   const expected = [
-    ...DRINKS.map((drink) => `menu-item:${drink.id}`),
     ...BUILDABLE_CELL_TYPES.map((type) => `cell-type:${type}`),
     ...QUESTS.flatMap((quest) => (quest.unlocks ?? []).map((feature) => `${feature.kind}:${feature.id}`)),
   ];
@@ -24,7 +22,8 @@ test("состояние сохраняется и восстанавливае�
   const state = createGame();
   state.money = 123;
   state.customerArrivalRemaining = 12.5;
-  state.customerArrivalRating = 7;
+  state.customerArrivalRate = 7;
+  state.drinkLevels.lager = 2;
   state.hold.energy = 123.4;
   state.hold.heat = 2.5;
   state.hold.cooldownRemaining = 1.5;
@@ -32,13 +31,13 @@ test("состояние сохраняется и восстанавливае�
   state.quests.incrementalProgress = 1;
   state.research.active = { id: "tables", remaining: 12.5 };
   state.unlockedFeatureIds.push("cell-type:table");
-  unlockFeature(state, { kind: "menu-item", id: "lager", name: "Лагер" });
   saveGame(state, { setItem: (_key, next) => { value = next; } });
 
   const loaded = loadGame({ getItem: () => value });
   assert.equal(loaded.money, 123);
   assert.equal(loaded.customerArrivalRemaining, 12.5);
-  assert.equal(loaded.customerArrivalRating, 7);
+  assert.equal(loaded.customerArrivalRate, 7);
+  assert.equal(loaded.drinkLevels.lager, 2);
   assert.equal(loaded.hold.energy, 123.4);
   assert.equal(loaded.hold.heat, 2.5);
   assert.equal(loaded.hold.cooldownRemaining, 1.5);
@@ -46,7 +45,16 @@ test("состояние сохраняется и восстанавливае�
   assert.equal(loaded.quests.incrementalProgress, 1);
   assert.deepEqual(loaded.research.active, { id: "tables", remaining: 12.5 });
   assert.equal(loaded.unlockedFeatureIds.includes("cell-type:table"), true);
-  assert.deepEqual(loaded.unseenUnlockIds, ["menu-item:lager"]);
+  assert.deepEqual(loaded.unseenUnlockIds, []);
+});
+
+test("загрузка ограничивает запас энергии новым максимумом и сохраняет прогресс", () => {
+  const state = createGame();
+  state.money = 123;
+  state.hold.energy = CONFIG.holdEnergyCapacity + 50;
+  const loaded = loadGame({ getItem: () => JSON.stringify(state) });
+  assert.equal(loaded.hold.energy, CONFIG.holdEnergyCapacity);
+  assert.equal(loaded.money, state.money);
 });
 
 test("длительное исследование инфраструктуры переживает сохранение", () => {
@@ -68,13 +76,14 @@ test("при загрузке пересчитывается бонус скор
   state.cells.find((cell) => cell.type === "taps")!.level = 6;
   state.cells.find((cell) => cell.type === "waiter-station")!.level = 6;
   syncPersonnel(state);
-  state.bartenders[0]!.speedFactor = 1 / 1.1;
-  state.waiters[0]!.speedFactor = 1 / 1.1;
+  state.bartenders[0]!.speedFactor = 999;
+  state.waiters[0]!.speedFactor = 999;
   saveGame(state, { setItem: (_key, next) => { value = next; } });
 
   const loaded = loadGame({ getItem: () => value });
-  assert.ok(Math.abs(loaded.bartenders[0]!.speedFactor - 1 / 1.1) < 0.0001);
-  assert.ok(Math.abs(loaded.waiters[0]!.speedFactor - 1 / 1.1) < 0.0001);
+  const expected = 1 / (1 + workSpeedBonusPercent(6) / 100);
+  assert.ok(Math.abs(loaded.bartenders[0]!.speedFactor - expected) < 0.0001);
+  assert.ok(Math.abs(loaded.waiters[0]!.speedFactor - expected) < 0.0001);
 });
 
 test("несовместимая версия сохранения сбрасывается", () => {

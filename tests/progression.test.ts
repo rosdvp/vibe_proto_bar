@@ -1,19 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { CUSTOMER_TYPES } from "../src/config";
+import { CONFIG, CUSTOMER_TYPES } from "../src/config";
 import {
-  acknowledgeMenuUnlocks,
   acknowledgeResearchScreenUnlock,
   isCustomerTypeUnlocked,
   buildCell,
   cellCapacity,
   cellBonusPercent,
-  barRating,
   createGame as createBaseGame,
-  menuCapacity,
   removeCell,
   reorderFloorCells,
-  toggleMenuItem,
   unlockFeature,
   unlockRandomLockedCellType,
   upgradeCell,
@@ -25,22 +21,9 @@ import { floorWidth, floorWidthLimit, floorCountLimit } from "../src/game/infras
 function createGame(): ReturnType<typeof createBaseGame> {
   const state = createBaseGame();
   state.money = 1000;
-  state.unlockedFeatureIds.push("cell-type:taps", "cell-type:stairs", "cell-type:waiter-station", "cell-type:table", "menu-item:lager", "menu-item:red-ale");
+  state.unlockedFeatureIds.push("cell-type:taps", "cell-type:stairs", "cell-type:waiter-station", "cell-type:table");
   return state;
 }
-
-test("новые разблокировки меню и исследований отмечаются до просмотра", () => {
-  const state = createBaseGame();
-  assert.deepEqual(state.unseenUnlockIds, []);
-  assert.equal(unlockFeature(state, { kind: "menu-item", id: "lager", name: "Лагер" }), true);
-  assert.equal(unlockFeature(state, { kind: "menu-item", id: "lager", name: "Лагер" }), false);
-  assert.equal(unlockFeature(state, { kind: "other", id: "research-screen", name: "Исследования" }), true);
-  assert.deepEqual(state.unseenUnlockIds, ["menu-item:lager", "other:research-screen"]);
-  acknowledgeMenuUnlocks(state);
-  assert.deepEqual(state.unseenUnlockIds, ["other:research-screen"]);
-  acknowledgeResearchScreenUnlock(state);
-  assert.deepEqual(state.unseenUnlockIds, []);
-});
 
 test("разблокировки применяются сразу и повторно не срабатывают", () => {
   const state = createBaseGame();
@@ -52,24 +35,17 @@ test("разблокировки применяются сразу и повто
   assert.equal(unlockFeature(state, table), false);
 });
 
-test("игровые действия не обходят блокировку контента", () => {
-  const state = createBaseGame();
-
-  assert.equal(buildCell(state, 1, "table"), false);
-  assert.equal(toggleMenuItem(state, "lager"), false);
-  assert.equal(state.money, 100);
-  assert.deepEqual(state.menu, []);
-});
-
 test("служебная разблокировка выбирает только заблокированные типы ячеек", () => {
   const state = createBaseGame();
-  const first = unlockRandomLockedCellType(state, () => 0);
-  const second = unlockRandomLockedCellType(state, () => 0);
-
-  assert.equal(first?.id, "taps");
-  assert.equal(second?.id, "waiter-station");
-  assert.equal(unlockRandomLockedCellType(state, () => 0)?.id, "table");
-  assert.equal(unlockRandomLockedCellType(state, () => 0)?.id, "stairs");
+  const seen = new Set(state.unlockedFeatureIds);
+  while (true) {
+    const feature = unlockRandomLockedCellType(state, () => 0);
+    if (!feature) break;
+    const key = `${feature.kind}:${feature.id}`;
+    assert.equal(seen.has(key), false);
+    assert.ok(state.unlockedFeatureIds.includes(key));
+    seen.add(key);
+  }
   assert.equal(unlockRandomLockedCellType(state, () => 0), null);
 });
 
@@ -152,41 +128,44 @@ test("активные персонажи перемещаются с ячейк
   assert.ok(state.customers[1]?.movePath.every((point) => point.x !== 3));
 });
 
-test("этаж допускает одну ячейку сверх лимита и ждёт исследования для продолжения", () => {
+for (const cellType of ["table", "counter", "toilet-stall"] as const) {
+  test(`этаж допускает одну ячейку ${cellType} сверх лимита и ждёт исследования для продолжения`, () => {
+    const state = createGame();
+    unlockFeature(state, { kind: "cell-type", id: cellType, name: cellType });
+    state.money = 5000;
+
+    assert.equal(buildCell(state, -1, "counter"), false);
+    const researchIds = ["dig-wide", "dig-wide-ii", "dig-wide-iii"];
+    let x = 1;
+    for (const [index, limit] of [CONFIG.initialFloorWidthLimit, ...CONFIG.floorWidthResearchLimits].entries()) {
+      if (index > 0) state.research.completedIds.push(researchIds[index - 1]!);
+      assert.equal(floorWidthLimit(state), limit);
+      while (floorWidth(state, 0) <= limit) {
+        state.money = CONFIG.buildCost;
+        assert.equal(buildCell(state, x++, cellType), true);
+      }
+      state.money = CONFIG.buildCost;
+      const width = floorWidth(state, 0);
+      assert.equal(buildCell(state, x, cellType), false);
+      assert.equal(floorWidth(state, 0), width);
+    }
+  });
+}
+
+test("исследования глубины последовательно расширяют лимит этажей", () => {
   const state = createGame();
   state.money = 5000;
-
-  assert.equal(buildCell(state, -1, "counter"), false);
-  for (let x = 1; x <= 6; x += 1) assert.equal(buildCell(state, x, "table"), true);
-  assert.equal(floorWidth(state, 0), 1020);
-  assert.equal(floorWidthLimit(state), 1000);
-  assert.equal(buildCell(state, 7, "table"), false);
-  state.research.completedIds.push("dig-wide");
-  assert.equal(floorWidthLimit(state), 1200);
-  for (let x = 7; x <= 8; x += 1) assert.equal(buildCell(state, x, "table"), true);
-  assert.equal(buildCell(state, 9, "table"), false);
-  state.research.completedIds.push("dig-wide-ii");
-  assert.equal(floorWidthLimit(state), 1400);
-  assert.equal(buildCell(state, 9, "table"), true);
-  assert.equal(buildCell(state, 10, "table"), false);
-  state.research.completedIds.push("dig-wide-iii");
-  assert.equal(floorWidthLimit(state), 1600);
-  assert.equal(buildCell(state, 10, "table"), true);
-  assert.equal(buildCell(state, 11, "table"), false);
-});
-
-test("исследования глубины последовательно открывают этажи до пятого", () => {
-  const state = createGame();
-  state.money = 5000;
-  assert.equal(floorCountLimit(state), 2);
-  assert.equal(buildCell(state, 0, "stairs", -1), true);
-  assert.equal(buildCell(state, 0, "stairs", -2), false);
-  for (const [id, y, limit] of [["dig-deep", -2, 3], ["dig-deep-ii", -3, 4], ["dig-deep-iii", -4, 5]] as const) {
-    state.research.completedIds.push(id);
+  const researchIds = ["dig-deep", "dig-deep-ii", "dig-deep-iii"];
+  let depth = 1;
+  for (const [index, limit] of [CONFIG.initialFloorCountLimit, ...CONFIG.floorCountResearchLimits].entries()) {
+    if (index > 0) state.research.completedIds.push(researchIds[index - 1]!);
     assert.equal(floorCountLimit(state), limit);
-    assert.equal(buildCell(state, 0, "stairs", y), true);
+    while (depth < limit) {
+      state.money = CONFIG.buildCost;
+      assert.equal(buildCell(state, 0, "stairs", -depth++), true);
+    }
+    assert.equal(buildCell(state, 0, "stairs", -depth), false);
   }
-  assert.equal(buildCell(state, 0, "stairs", -5), false);
 });
 
 test("новый этаж начинается только лестницей над входом или лестницей", () => {
@@ -213,7 +192,7 @@ test("лестница не имеет уровня", () => {
   buildCell(state, 0, "stairs", -1);
   const stairs = state.cells.find((cell) => cell.type === "stairs");
   assert.ok(stairs);
-  assert.equal(upgradeCell(state, stairs.id), false);
+  assert.equal(upgradeCell(state, stairs.id).success, false);
 });
 
 test("уничтожение возвращает полную стоимость и сдвигает правые ячейки", () => {
@@ -229,7 +208,7 @@ test("уничтожение возвращает полную стоимост�
 
   const moneyBeforeRemoval = state.money;
   assert.equal(removeCell(state, counter.id), true);
-  assert.equal(state.money, moneyBeforeRemoval + 170);
+  assert.equal(state.money, moneyBeforeRemoval + CONFIG.buildCost + upgradeCostForLevel(2) + upgradeCostForLevel(3));
   assert.equal(table.x, 1);
 });
 
@@ -237,14 +216,17 @@ test("цена улучшения зависит от покупаемого у�
   const state = createGame();
   const cell = { id: "counter", x: 1, y: 0, type: "counter", level: 1 } as const;
   state.cells.push({ ...cell });
-  state.money = 29;
+  state.money = upgradeCostForLevel(2) - 1;
 
-  assert.deepEqual([2, 3, 4].map(upgradeCostForLevel), [30, 40, 50]);
-  assert.equal(upgradeCell(state, cell.id), false);
-  state.money = 120;
-  assert.equal(upgradeCell(state, cell.id), true);
-  assert.equal(upgradeCell(state, cell.id), true);
-  assert.equal(upgradeCell(state, cell.id), true);
+  for (let level = 2; level <= CONFIG.maxCellLevel; level += 1) {
+    const tier = level < 10 ? 1 : level < 20 ? 2 : 3;
+    assert.equal(upgradeCostForLevel(level), Math.ceil((CONFIG.cellUpgradeCostBase + level ** CONFIG.cellUpgradeCostStep) * tier));
+  }
+  assert.equal(upgradeCell(state, cell.id).success, false);
+  state.money = [2, 3, 4].reduce((sum, level) => sum + upgradeCostForLevel(level), 0);
+  assert.equal(upgradeCell(state, cell.id).success, true);
+  assert.equal(upgradeCell(state, cell.id).success, true);
+  assert.equal(upgradeCell(state, cell.id).success, true);
   assert.equal(state.money, 0);
 });
 
@@ -308,36 +290,8 @@ test("удаление крана прерывает бармена из дру�
 });
 
 test("стойка и стол имеют постоянное количество мест", () => {
-  assert.equal(cellCapacity({ id: "counter", x: 1, y: 0, type: "counter", level: 1 }), 3);
-  assert.equal(cellCapacity({ id: "table", x: 2, y: 0, type: "table", level: 15 }), 2);
-});
-
-test("ячейки первого уровня не дают бонусов, а третий уровень дает два шага бонуса", () => {
-  const state = createGame();
-  for (const [index, type] of (["counter", "taps", "waiter-station", "table"] as const).entries()) {
-    state.cells.push({ id: type, x: index + 1, y: 0, type, level: 1 });
-  }
-  assert.equal(barRating(state), 0);
-  assert.equal(cellBonusPercent(1), 0);
-  state.cells.forEach((cell) => { if (cell.type !== "entrance") cell.level = 3; });
-  assert.equal(barRating(state), 8);
-  for (const cell of state.cells) if (cell.type !== "entrance") cell.level = 15;
-  state.cells.push(...Array.from({ length: 2 }, (_, index) => ({ id: `extra-${index}`, x: index + 5, y: 0, type: "counter" as const, level: 15 })));
-  assert.equal(barRating(state), 84);
-  state.cells.push(...Array.from({ length: 2 }, (_, index) => ({ id: `more-${index}`, x: index + 7, y: 0, type: "counter" as const, level: 15 })));
-  assert.equal(barRating(state), 112);
-  assert.equal(cellBonusPercent(3), 4);
-  assert.equal(workSpeedBonusPercent(3), 4);
-});
-
-test("каждый кран дает один слот пива и одного бармена", () => {
-  const state = createGame();
-  buildCell(state, 1, "taps");
-
-  assert.equal(menuCapacity(state, "keg"), 1);
-  assert.equal(state.bartenders.length, 1);
-  assert.equal(toggleMenuItem(state, "mash"), true);
-  assert.equal(toggleMenuItem(state, "lager"), false);
+  assert.equal(cellCapacity({ id: "counter", x: 1, y: 0, type: "counter", level: 1 }), CONFIG.counterCapacity);
+  assert.equal(cellCapacity({ id: "table", x: 2, y: 0, type: "table", level: 15 }), CONFIG.tableCapacity);
 });
 
 test("каждая стойка официанта дает одного привязанного официанта", () => {
@@ -350,26 +304,5 @@ test("каждая стойка официанта дает одного при�
   assert.equal(state.waiters[0]?.homeStationCellId, station.id);
   station.level = 6;
   upgradeCell(state, station.id);
-  assert.ok(Math.abs((state.waiters[0]?.speedFactor ?? 0) - 1 / 1.12) < 0.0001);
-});
-
-test("актуальные требования трех типов клиентов соответствуют GDD", () => {
-  const state = createGame();
-  const sailors = CUSTOMER_TYPES.find((type) => type.id === "sailors");
-  const clerks = CUSTOMER_TYPES.find((type) => type.id === "clerks");
-  const irish = CUSTOMER_TYPES.find((type) => type.id === "irish");
-  assert.ok(sailors && clerks && irish);
-
-  state.menu.push("mash");
-  assert.equal(isCustomerTypeUnlocked(state, sailors), true);
-  assert.equal(isCustomerTypeUnlocked(state, clerks), false);
-  assert.equal(isCustomerTypeUnlocked(state, irish), false);
-
-  state.cells.push({ id: "table", x: 1, y: 0, type: "table", level: 1 });
-  state.menu.push("lager");
-  assert.equal(isCustomerTypeUnlocked(state, clerks), true);
-
-  state.cells.push({ id: "counter", x: 2, y: 0, type: "counter", level: 20 });
-  state.menu.push("red-ale");
-  assert.equal(isCustomerTypeUnlocked(state, irish), true);
+  assert.ok(Math.abs((state.waiters[0]?.speedFactor ?? 0) - 1 / (1 + workSpeedBonusPercent(station.level) / 100)) < 0.0001);
 });

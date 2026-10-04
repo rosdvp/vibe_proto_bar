@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="70" viewBox="0 0 1000 70" preserveAspectRatio="none">
+  <title>Общий бетонный потолок</title>
+  <defs>
+    <linearGradient id="ceiling-concrete" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#282827"/>
+      <stop offset="0.5" stop-color="#252524"/>
+      <stop offset="1" stop-color="#242423"/>
+    </linearGradient>
+  </defs>
+  <rect width="1000" height="70" fill="url(#ceiling-concrete)"/>
+  <rect y="57.2274167987322" width="1000" height="12.7725832012678" fill="#0b0603"/>
+</svg>

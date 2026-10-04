@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="79.2" height="146" viewBox="0 0 79.2 146" data-anchor="bottom-center">
+  <title>Открытая кабинка: перегородки и бачок</title>
+  <defs><linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#795139"/><stop offset=".5" stop-color="#624232"/><stop offset="1" stop-color="#5d3e30"/></linearGradient><linearGradient id="ceramic" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0e8d5"/><stop offset=".6" stop-color="#d7d2bf"/><stop offset="1" stop-color="#a5ab9d"/></linearGradient></defs>
+  <g stroke="#0b0603" stroke-width="2.365" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="3" y="3" width="73.2" height="133" rx="3" fill="url(#wood)"/>
+    <path d="M8 9h63.2v122H8z" fill="#4d382e" stroke-width="1.2"/>
+    <rect x="2" y="2" width="6" height="142.8175" rx="1" fill="url(#wood)"/>
+    <rect x="71.2" y="2" width="6" height="142.8175" rx="1" fill="url(#wood)"/>
+    <g transform="translate(3.6 0)">
+    <rect x="21" y="55" width="30" height="29" rx="4" fill="url(#ceramic)"/>
+    <rect x="19" y="53" width="34" height="5" rx="2" fill="#e9e2d0"/>
+    <path d="M36 84v19" stroke="#99998e" stroke-width="6"/>
+    <rect x="41" y="62" width="6" height="3" rx="1" fill="#99998e" stroke-width="1"/>
+    </g>
+    <path d="M11 17v29M68.2 17v29" stroke="#866044" stroke-width=".8"/>
+  </g>
+</svg>

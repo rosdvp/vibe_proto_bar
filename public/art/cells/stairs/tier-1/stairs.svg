@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="213" viewBox="0 0 120 213" data-anchor="bottom-center">
+  <title>Лестница зигзагом с левой площадкой и перилами</title>
+  <defs>
+    <linearGradient id="stairs-wood" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#795139"/>
+      <stop offset=".5" stop-color="#624232"/>
+      <stop offset="1" stop-color="#5d3e30"/>
+    </linearGradient>
+  </defs>
+  <g stroke="#0b0603" stroke-width="2.365" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M19 111h11V94h11V77h11V60h11V43h11V26h11V9h11V-8h11V-25h13v9L30 122Z" fill="url(#stairs-wood)"/>
+    <path d="M24 111h11v13h11v13h11v13h11v13h11v13h11v13h11v13h11v13h-11L17 116Z" fill="url(#stairs-wood)"/>
+    <path d="M0 111h24l10 12H0Z" fill="#624232"/>
+    <g fill="none" stroke="#ac7d50" stroke-width=".8">
+      <path d="M32 95h7m4-17h7m4-17h7m4-17h7m4-17h7m4-17h7"/>
+      <path d="M37 125h7m4 13h7m4 13h7m4 13h7m4 13h7m4 13h7m4 13h7"/>
+      <path d="M2 113h19"/>
+    </g>
+    <g fill="none" stroke="#0b0603" stroke-width="4.4">
+      <path d="M5 111V82m19 29V82M35 94V65M57 60V31M79 26V-3M101-8V-37"/>
+      <path d="M35 124V95M57 150v-29M79 176v-29M101 202v-29M112 213v-27"/>
+    </g>
+    <g fill="none" stroke="#6b685b" stroke-width="1.4">
+      <path d="M5 111V82m19 29V82M35 94V65M57 60V31M79 26V-3M101-8V-37"/>
+      <path d="M35 124V95M57 150v-29M79 176v-29M101 202v-29M112 213v-27"/>
+    </g>
+    <path d="M0 82h24L116-60M24 82l88 104" fill="none" stroke-width="6.7"/>
+    <path d="M0 82h24L116-60M24 82l88 104" fill="none" stroke="#624232" stroke-width="2"/>
+    <g stroke="#cbaa5b" stroke-width="1.3">
+      <path d="M4 103h2m17 0h2m9 13h2m21 26h2m21 26h2m21 26h2"/>
+    </g>
+  </g>
+</svg>

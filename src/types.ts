@@ -11,23 +11,35 @@ export type CellType =
   | "billiards"
   | "stairs";
 
+export type DecorId = "classic" | "cabaret" | "techno" | "japan";
+export type DecorCellType = Exclude<CellType, "entrance" | "stairs">;
+export interface DecorTypeState {
+  unlockedIds: DecorId[];
+  unseenIds: DecorId[];
+  buttonUnseen: boolean;
+}
+export interface CellUpgradeResult { success: boolean; unlocks: UnlockFeature[] }
+
 export type BuildableCellType = Exclude<CellType, "entrance">;
-export type DrinkCategory = "keg" | "bottle";
 export type ExtraActivity = "toilet" | "darts" | "billiards";
 export type ActivityType = "counter" | "table" | ExtraActivity;
 
 export type QuestCondition =
-  | { kind: "cell-count"; cellType: BuildableCellType; floor?: number }
-  | { kind: "cell-level"; cellType: BuildableCellType }
-  | { kind: "menu-item"; drinkId: string }
+  | { kind: "cell-count"; cellType?: BuildableCellType; floor?: number; minLevel?: number }
+  | { kind: "cell-level"; cellType?: BuildableCellType }
+  | { kind: "cell-decor"; cellType: DecorCellType }
+  | { kind: "total-customer-rate" }
+  | { kind: "all-drinks-max" }
+  | { kind: "all-customers-max" }
+  | { kind: "drink-level"; drinkId: string }
+  | { kind: "customer-rate"; customerTypeId: string }
   | { kind: "served"; customerTypeId?: string }
   | { kind: "hold-seconds" }
-  | { kind: "bar-rating" }
   | { kind: "drink-sales"; drinkId: string }
   | { kind: "earned-money" }
   | { kind: "screen-open"; screenId: "customers" }
   | { kind: "research-completed"; researchId: string }
-  | { kind: "customer-unlocked"; customerTypeId: string };
+  | { kind: "customer-level"; customerTypeId: string };
 
 export interface QuestDefinition {
   id: string;
@@ -44,7 +56,8 @@ export interface QuestState {
 }
 
 export type UnlockFeature =
-  | { kind: "menu-item"; id: string; name: string }
+  | { kind: "decor"; id: DecorId; cellType: DecorCellType; name: string }
+  | { kind: "customer-type"; id: string; name: string }
   | { kind: "cell-type"; id: BuildableCellType; name: string }
   | { kind: "other"; id: string; name: string };
 
@@ -54,34 +67,32 @@ export interface Cell {
   y: number;
   type: CellType;
   level: number;
+  decorId?: DecorId;
 }
 
 export interface DrinkDefinition {
   id: string;
   name: string;
-  category: DrinkCategory;
-  rating: 1 | 2 | 3;
-  price: number;
-  locked?: true;
+  maxLevel: number;
+  chanceA?: number;
+  chanceB?: number;
+  priceA: number;
+  priceB: number;
+  costBase: number;
+  costStep: number;
 }
-
-export interface QualityRequirement {
-  cellType: BuildableCellType;
-  minimum: number;
-}
-
-export type DrinkRequirement =
-  | { kind: "specific"; drinkId: string }
-  | { kind: "rating"; category: DrinkCategory; min: number; max: number };
 
 export interface CustomerTypeDefinition {
   id: string;
   name: string;
-  arrivalWeight: number;
-  qualityRequirements: QualityRequirement[];
-  drinkRequirements: DrinkRequirement[];
-  mandatoryActivity?: ActivityType;
-  priorityActivity?: ActivityType;
+  maxLevel: number;
+  rateA: number;
+  rateB: number;
+  priceMultA: number;
+  priceMultB: number;
+  costBase: number;
+  costStep: number;
+  requirement?: { kind: "cell"; cellType: BuildableCellType } | { kind: "drink-level"; drinkId: string; level: number } | { kind: "cells"; cellTypes: BuildableCellType[] };
 }
 
 export type CustomerPhase =
@@ -125,6 +136,7 @@ export interface Customer {
   bartenderId: string | null;
   waiterId: string | null;
   waitingElapsed: number;
+  isPrize?: boolean;
   waitingDirection: -1 | 1;
   visitedExtras?: ExtraActivity[];
   repeatOrdered?: boolean;
@@ -206,18 +218,25 @@ export interface ResearchState {
 }
 
 export interface GameState {
+  decor: Record<DecorCellType, DecorTypeState>;
+  offers: OfferState;
   saveVersion: number;
   money: number;
   speed: 1 | 5 | 10;
   cells: Cell[];
-  menu: string[];
+  drinkLevels: Record<string, number>;
+  customerLevels: Record<string, number>;
   unlockedFeatureIds: string[];
   unseenUnlockIds: string[];
   bartenders: Bartender[];
   waiters: Waiter[];
   customers: Customer[];
   customerArrivalRemaining: number;
-  customerArrivalRating: number;
+  customerArrivalsStarted: boolean;
+  customerArrivalRate: number;
+  arrivalTypeCarry: Record<string, number>;
+  arrivalTypeBag: string[];
+  arrivalMinuteRemaining: number;
   everUnlockedCustomerTypeIds: string[];
   nextEntityId: number;
   hold: HoldState;
@@ -227,4 +246,13 @@ export interface GameState {
 
 export interface RandomSource {
   (): number;
+}
+
+export type OfferSymbol = { color: "money" | "customers" | "none"; count: number };
+export type OfferReward =
+  | { kind: "money"; multiplier: number; amount: number }
+  | { kind: "customers"; typeId: string; count: number };
+export interface OfferState {
+  cooldownRemaining: number;
+  pending: { reward: OfferReward; slots: OfferSymbol[] } | null;
 }

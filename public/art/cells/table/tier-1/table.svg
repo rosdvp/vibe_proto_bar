@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="68.4278129587956" viewBox="0 0 72 68.4278129587956" data-anchor="bottom-center">
+  <title>Деревянный стол с латунным основанием</title>
+  <defs><linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#795139"/><stop offset=".5" stop-color="#624232"/><stop offset="1" stop-color="#5d3e30"/></linearGradient></defs>
+  <g stroke="#0b0603" stroke-width="2.365" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M31 12h10v44h-10z" fill="url(#wood)"/>
+    <path d="M31 53L16 62v5.2453129587956h40v-5.2453129587956L41 53z" fill="url(#wood)"/>
+    <rect x="30" y="45" width="12" height="6" rx="2" fill="#cbaa5b"/>
+    <rect x="2" y="2" width="68" height="9" rx="3" fill="url(#wood)"/>
+    <path d="M6 5h60" fill="none" stroke="#ac7950" stroke-width=".9"/>
+    <path d="M19 63h34" fill="none" stroke="#cbaa5b" stroke-width="1.2"/>
+  </g>
+</svg>

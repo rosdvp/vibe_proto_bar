@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" width="39" height="78" viewBox="0 0 39 78" data-anchor="bottom-center">
+  <g id="artwork" transform="matrix(0.13310580204778158 0 0 0.13780918727915195 19.30034129692833 46.57950530035336)">
+    <defs>
+      <linearGradient id="jacket" x1="0" y1="0" x2="1" y2="0">
+        <stop stop-color="#64664a" />
+        <stop offset=".5" stop-color="#4b4e37" />
+        <stop offset="1" stop-color="#353b2a" />
+      </linearGradient>
+      <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="0">
+        <stop stop-color="#ddcfab" />
+        <stop offset=".55" stop-color="#eee1bd" />
+        <stop offset="1" stop-color="#b2a37b" />
+      </linearGradient>
+    </defs>
+    <g stroke="#090807" stroke-width="14" stroke-linejoin="round">
+      <path d="M-136 127 V-179 Q-136-263-76-301 Q-25-330 31-315 Q113-302 128-223 Q140-164 139-102 V129 Q139 219 70 220 H-70 Q-136 217-136 127Z" fill="url(#jacket)" />
+      <path d="M49-306 L104-267 110-37 87-29 72-224Z" fill="url(#shirt)" stroke-width="8" />
+      <path d="M-37-307 Q6-329 49-306 L88-237 53-248 74-211 87-146 13-240Z" fill="#64664a" stroke-width="10" />
+      <path d="M100-29 V211" fill="none" stroke-width="10" />
+      <path d="M-55-17 L16-20 V91 Q-18 102-55 92Z" fill="#4b4e37" stroke-width="9" />
+      <path d="M-48-10 L10-13" fill="none" stroke="#64664a" stroke-width="7" opacity=".5" />
+      <path d="M100-54 L116-30 100-9 89-29Z" fill="#3a332a" stroke-width="8" />
+    </g>
+  </g>
+</svg>

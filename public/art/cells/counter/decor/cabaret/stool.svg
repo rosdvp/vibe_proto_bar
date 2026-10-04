@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="42.31385415742958" height="42.256451172002016" viewBox="0 0 42.31385415742958 42.256451172002016" data-anchor="bottom-center"><title>Табурет — cabaret</title><g stroke="#0b0603" stroke-width="1.74" stroke-linejoin="round" stroke-linecap="round">
+<!-- Splayed, curved gilded legs and a deep velvet cushion. Seat top remains fixed. -->
+<path d="M10 10Q15 21 11 31L6 41.386H13L17 30Q22 22 18 10Z" fill="#b38d56"/>
+<path d="M32 10Q27 21 31 31L36 41.386H29L25 30Q20 22 24 10Z" fill="#b38d56"/>
+<path d="M11 28Q21 23 31 28L29 32Q21 28 13 32Z" fill="#cfaa6a"/>
+<path d="M5 4Q6 1 12 1H30Q37 1 37 5V8Q36 11 29 11H13Q6 11 5 8Z" fill="#862f48"/>
+<path d="M8 5H34" stroke="#0b0603" stroke-width="2.1"/><path d="M8 5H34" stroke="#bb6579" stroke-width="1"/>
+<path d="M9 10Q21 13 33 10" fill="none" stroke="#0b0603" stroke-width="2.2"/><path d="M9 10Q21 13 33 10" fill="none" stroke="#c69e62" stroke-width="1.1"/>
+<g fill="#c7a56a" stroke-width=".7"><circle cx="12" cy="8" r=".8"/><circle cx="21" cy="8" r=".8"/><circle cx="30" cy="8" r=".8"/></g>
+</g></svg>

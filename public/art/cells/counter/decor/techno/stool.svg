@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="42.31385415742958" height="42.256451172002016" viewBox="0 0 42.31385415742958 42.256451172002016" data-anchor="bottom-center"><title>Табурет — Стимпанк</title><g stroke="#0b0603" stroke-width="1.74" stroke-linejoin="round" stroke-linecap="round">
+<!-- Кожаная подушка, винтовая опора и литое основание. -->
+<path d="M18 10H25V33H18Z" fill="#a8804f"/>
+<path d="M17 15L26 12M17 21L26 18M17 27L26 24" stroke="#0b0603" stroke-width="3.1"/><path d="M17 15L26 12M17 21L26 18M17 27L26 24" stroke="#57432f" stroke-width="2"/>
+<path d="M19 32H24L35 39V41.386H28L21 37L14 41.386H7V39Z" fill="#41433b"/>
+<path d="M10 28H33V31H10Z" fill="#b89157"/>
+<path d="M5 4Q6 1 12 1H30Q37 1 37 5V8Q35 11 29 11H13Q6 11 5 8Z" fill="#79503a"/>
+<path d="M9 5H33" stroke="#0b0603" stroke-width="2.1"/><path d="M9 5H33" stroke="#ad7950" stroke-width="1"/>
+<path d="M10 10H32" stroke="#0b0603" stroke-width="2.3"/><path d="M10 10H32" stroke="#c49f66" stroke-width="1.2"/>
+</g></svg>

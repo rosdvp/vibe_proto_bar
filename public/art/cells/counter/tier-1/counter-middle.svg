@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160.947702060222" height="68.4278129587956" viewBox="0 0 160.947702060222 68.4278129587956" data-anchor="bottom-center">
+  <title>Барная стойка: middle</title>
+  <defs>
+    <linearGradient id="counter-wood" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#624232"/>
+      <stop offset="0.5" stop-color="#5d3e30"/>
+      <stop offset="1" stop-color="#634332"/>
+    </linearGradient>
+    <linearGradient id="counter-brass" x1="61.5" y1="0" x2="1166.5" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#cbaa5b"/>
+      <stop offset="0.5" stop-color="#d5b162"/>
+      <stop offset="1" stop-color="#cbaa5b"/>
+    </linearGradient>
+  </defs>
+  <g id="artwork" transform="matrix(0.157686212361331 0 0 0.157686212361331 -16.3454833597464 0)">
+    <g stroke="#0b0603" stroke-width="15" stroke-linejoin="round">
+    <rect x="32.5" y="53.55" width="1163" height="372.899246" fill="url(#counter-wood)"/>
+    <g fill="url(#counter-wood)">
+      <rect x="67.5" y="87.75" width="335" height="231.449246" rx="2"/>
+      <rect x="446.5" y="87.75" width="335" height="231.449246" rx="2"/>
+      <rect x="825.5" y="87.75" width="335" height="231.449246" rx="2"/>
+    </g>
+    <g fill="url(#counter-brass)">
+      <rect x="61.5" y="345.555531" width="1105" height="30" rx="15"/>
+    </g>
+    <rect x="7.5" y="7.5" width="1213" height="47.7" rx="26.5" fill="#624232"/>
+  </g>
+  </g>
+</svg>

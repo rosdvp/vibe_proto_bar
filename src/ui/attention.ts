@@ -1,8 +1,9 @@
 import { currentQuestProgress } from "../game/quests";
 import type { CellType, GameState } from "../types";
+import { uiIcon } from "./icons";
 
 export function attentionIndicator(): string {
-  return '<span class="attention-indicator" aria-hidden="true"></span>';
+  return `<span class="attention-indicator" aria-hidden="true">${uiIcon("attention")}</span>`;
 }
 
 function activeQuestId(state: GameState): string | undefined {
@@ -21,15 +22,19 @@ export function attentionOnBuiltCell(state: GameState, type: CellType): boolean 
 }
 
 export function attentionOnMenuButton(state: GameState): boolean {
-  return activeQuestId(state) === "add-mash" || state.unseenUnlockIds.some((id) => id.startsWith("menu-item:"));
+  return activeQuestId(state) === "add-mash";
 }
 
 export function attentionOnMashAddButton(state: GameState): boolean {
-  return activeQuestId(state) === "add-mash" && !state.menu.includes("mash");
+  return activeQuestId(state) === "add-mash" && (state.drinkLevels.mash ?? 0) === 0;
 }
 
 export function attentionOnCustomersButton(state: GameState): boolean {
-  return activeQuestId(state) === "explore-customers";
+  return activeQuestId(state) === "sailors-rate-three";
+}
+
+export function attentionOnCustomerUpgradeButton(state: GameState, customerTypeId: string): boolean {
+  return customerTypeId === "sailors" && attentionOnCustomersButton(state);
 }
 
 export function attentionOnResearchButton(state: GameState): boolean {

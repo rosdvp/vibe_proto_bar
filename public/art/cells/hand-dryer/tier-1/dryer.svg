@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="57" viewBox="0 0 40 57" data-anchor="bottom-center">
+  <title>Настенная металлическая сушилка для рук</title>
+  <defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#99998e"/><stop offset=".45" stop-color="#e1dccb"/><stop offset="1" stop-color="#797b73"/></linearGradient></defs>
+  <g stroke="#0b0603" stroke-width="2.365" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="3" y="3" width="34" height="43" rx="7" fill="url(#metal)"/>
+    <path d="M9 37h22l-3 17H12z" fill="#797b73"/>
+    <rect x="12" y="44" width="16" height="5" rx="2" fill="#292e2a" stroke-width="1"/>
+    <path d="M9 11h22M10 16h20" stroke="#f1ebd8" stroke-width="1"/>
+    <rect x="13" y="25" width="14" height="6" rx="2" fill="#cbaa5b" stroke-width="1.2"/>
+    <circle cx="8" cy="39" r="1" fill="#474b44" stroke="none"/>
+    <circle cx="32" cy="39" r="1" fill="#474b44" stroke="none"/>
+  </g>
+</svg>

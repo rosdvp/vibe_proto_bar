@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" width="23" height="23" viewBox="0 0 23 23" data-anchor="bottom-center">
+  <g id="artwork" transform="matrix(0.18253968253968253 0 0 0.18253968253968253 11.5 11.5)">
+<defs>
+    <linearGradient id="skin" x1="0" y1="0" x2=".7" y2="1">
+      <stop stop-color="#ffc47c" />
+      <stop offset="1" stop-color="#e9a05c" />
+    </linearGradient>
+    <g id="palm" stroke="#090807" stroke-width="13">
+      <circle r="55" fill="url(#skin)" />
+      <path d="M-49 15 Q0 62 49 15 A51 51 0 0 1-49 15Z" fill="#e9a05d" stroke="none" />
+    </g>
+  </defs>
+  <use href="#palm" />
+  </g>
+</svg>

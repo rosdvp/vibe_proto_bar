@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="26" height="33" viewBox="0 0 26 33" data-anchor="bottom-center">
+  <title>Лагер — стеклянная кружка с пеной, вид спереди</title>
+  <defs>
+    <linearGradient id="lager-beer" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#d3a43c"/>
+      <stop offset=".4" stop-color="#dcb54e"/>
+      <stop offset="1" stop-color="#a77c25"/>
+    </linearGradient>
+    <linearGradient id="lager-foam" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#f5ecd3"/>
+      <stop offset="1" stop-color="#d3c6ab"/>
+    </linearGradient>
+  </defs>
+  <g stroke="#0b0805" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M18.7 9 H22 Q25.3 9 25.3 12.3 V23.7 Q25.3 27 22 27 H18.7 V23.8 H21.2 Q22.1 23.8 22.1 22.9 V13.1 Q22.1 12.2 21.2 12.2 H18.7Z" fill="#c3d0c5" fill-opacity=".25"/>
+    <path d="M23.7 12 V23.6" fill="none" stroke="#e6e8d7" stroke-width=".7" opacity=".65"/>
+    <rect x="1.1" y="5.4" width="18.5" height="26.95" rx="1.6" fill="#c3d0c5" fill-opacity=".2"/>
+    <path d="M3.3 9 H17.4 V28.7 Q17.4 29.5 16.6 29.5 H4.1 Q3.3 29.5 3.3 28.7Z" fill="url(#lager-beer)" stroke-width=".7"/>
+    <path d="M2.6 10 V28.4 M18.2 10 V28.4" fill="none" stroke="#e9e9d7" stroke-width=".8" opacity=".7"/>
+    <path d="M5.1 11 V27.9" fill="none" stroke="#fff2c7" stroke-width="1" opacity=".25"/>
+    <path d="M2.7 31 H18" fill="none" stroke="#d6ddcf" stroke-width=".8" opacity=".8"/>
+    <path d="M1.1 6 Q.2 4.6 1.5 3.5 Q2.2 2.8 3.5 3 Q4.3 1.2 6.7 1.7 Q8.7 .1 11.1 .9 Q13.1 .7 14.4 2.6 Q16.4 1.9 17.9 3.4 Q20.5 3.7 20.1 6 Q20.1 8.2 17.5 8.2 H5.1 V9.2 Q5.1 11 3.6 11 Q2.2 11 2.2 9.3 V7.8 Q1.2 7.5 1.1 6Z" fill="url(#lager-foam)"/>
+    <path d="M7 6.8 H16.8" fill="none" stroke="#fbf3df" stroke-width=".7" opacity=".65"/>
+  </g>
+</svg>

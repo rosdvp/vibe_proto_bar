@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { CONFIG } from "../src/config";
-import { advanceResearch, claimResearch, createGame, isCellTypeUnlocked, researchStatus, startResearch, upgradeCell, requiredTierResearchId, tierProgressPercent } from "../src/game";
-import { RESEARCHES, researchCost, researchDuration, visibleResearches } from "../src/game/research";
+import { advanceResearch, claimResearch, createGame, isCellTypeUnlocked, researchStatus, startResearch, upgradeCell, upgradeCostForLevel, requiredTierResearchId, tierProgressPercent } from "../src/game";
+import { RESEARCHES, researchCost, researchDuration, skipResearch, visibleResearches } from "../src/game/research";
 import type { BuildableCellType } from "../src/types";
 
 const tables = RESEARCHES.find((research) => research.id === "tables")!;
@@ -25,13 +25,29 @@ test("исследование требует оплаты и запускает
   assert.equal(state.money, 10);
 });
 
-test("технические заглушки остаются заблокированными", () => {
+test("исследования новых построек доступны без Столиков I и открывают постройку", () => {
+  const state = researchGame();
+  for (const research of RESEARCHES.filter((item) => item.unlocks?.some((feature) => feature.kind === "cell-type"))) {
+    state.research.completedIds = [];
+    state.money = researchCost(research);
+    assert.equal(researchStatus(state, research), "available");
+    assert.equal(startResearch(state, research.id), true);
+    advanceResearch(state, researchDuration(research));
+    assert.deepEqual(claimResearch(state, research.id), research.unlocks);
+    for (const feature of research.unlocks ?? []) {
+      assert.ok(state.unlockedFeatureIds.includes(`${feature.kind}:${feature.id}`));
+    }
+  }
+});
+
+test("Бильярд доступен как апгрейд и открывает постройку", () => {
   const state = researchGame();
   state.money = 1000;
-  for (const research of RESEARCHES.filter((item) => item.lockedUntilProgress)) {
-    assert.equal(researchStatus(state, research), "locked");
-    assert.equal(startResearch(state, research.id), false);
-  }
+  const billiards = RESEARCHES.find((item) => item.id === "billiards")!;
+  assert.equal(researchStatus(state, billiards), "available");
+  assert.equal(startResearch(state, "billiards"), true);
+  advanceResearch(state, researchDuration(billiards));
+  assert.deepEqual(claimResearch(state, "billiards"), billiards.unlocks);
 });
 
 test("служебный переключатель ускоряет исследование и отсчёт останавливается на нуле", () => {
@@ -39,14 +55,52 @@ test("служебный переключатель ускоряет иссле�
   state.money = CONFIG.researchCost;
   startResearch(state, "tables");
   state.speed = 10;
-  advanceResearch(state, 1.25);
-  assert.equal(state.research.active?.remaining, 17.5);
+  const elapsed = researchDuration(tables) / (state.speed * 2);
+  advanceResearch(state, elapsed);
+  assert.equal(state.research.active?.remaining, researchDuration(tables) / 2);
   assert.equal(researchStatus(state, tables), "running");
   assert.equal(claimResearch(state, "tables"), null);
-  advanceResearch(state, 100);
+  advanceResearch(state, researchDuration(tables));
   assert.equal(state.research.active?.remaining, 0);
   assert.equal(researchStatus(state, tables), "ready");
   assert.equal(isCellTypeUnlocked(state, "table"), false);
+});
+
+test("пропуск доводит апгрейд до готовности без оплаты и выдачи результата", () => {
+  const state = researchGame();
+  state.money = researchCost(tables);
+  startResearch(state, tables.id);
+  const money = state.money;
+  const unlocks = [...state.unlockedFeatureIds];
+  assert.equal(skipResearch(state, tables.id), true);
+  assert.equal(state.research.active?.remaining, 0);
+  assert.equal(researchStatus(state, tables), "ready");
+  assert.equal(state.money, money);
+  assert.deepEqual(state.unlockedFeatureIds, unlocks);
+  assert.equal(state.research.completedIds.includes(tables.id), false);
+  assert.deepEqual(claimResearch(state, tables.id), tables.unlocks);
+  assert.equal(researchStatus(state, tables), "completed");
+});
+
+test("пропуск без активного апгрейда отклоняется", () => {
+  assert.equal(skipResearch(researchGame(), tables.id), false);
+});
+
+test("пропуск другого апгрейда не изменяет активный таймер", () => {
+  const state = researchGame();
+  state.money = researchCost(tables);
+  startResearch(state, tables.id);
+  assert.equal(skipResearch(state, "darts"), false);
+  assert.equal(state.research.active?.remaining, researchDuration(tables));
+});
+
+test("повторный пропуск готового апгрейда отклоняется", () => {
+  const state = researchGame();
+  state.money = researchCost(tables);
+  startResearch(state, tables.id);
+  skipResearch(state, tables.id);
+  assert.equal(skipResearch(state, tables.id), false);
+  assert.equal(researchStatus(state, tables), "ready");
 });
 
 test("подтверждение готового исследования открывает обе ячейки один раз", () => {
@@ -55,9 +109,8 @@ test("подтверждение готового исследования от�
   startResearch(state, "tables");
   advanceResearch(state, CONFIG.researchDuration);
   const unlocks = claimResearch(state, "tables");
-  assert.deepEqual(unlocks?.map((feature) => feature.id), ["table", "waiter-station"]);
-  assert.equal(isCellTypeUnlocked(state, "table"), true);
-  assert.equal(isCellTypeUnlocked(state, "waiter-station"), true);
+  assert.deepEqual(unlocks, tables.unlocks);
+  for (const feature of tables.unlocks ?? []) assert.ok(state.unlockedFeatureIds.includes(`${feature.kind}:${feature.id}`));
   assert.equal(researchStatus(state, tables), "completed");
   assert.equal(claimResearch(state, "tables"), null);
   assert.equal(startResearch(state, "tables"), false);
@@ -73,10 +126,15 @@ test("исследования тиров появляются по цепочк
   const state = researchGame();
   state.money = 10_000;
   const visible = () => visibleResearches(state).map((research) => research.id);
-  assert.equal(visible().includes("tables-ii"), false);
-  assert.equal(visible().includes("taps-ii"), false);
-  assert.equal(startResearch(state, "tables-ii"), false);
-  assert.equal(startResearch(state, "taps-ii"), false);
+  for (const id of ["waiters-ii", "taps-ii", "counter-ii"]) {
+    const research = RESEARCHES.find((item) => item.id === id)!;
+    assert.equal(visible().includes(id), true);
+    assert.equal(startResearch(state, id), true);
+    advanceResearch(state, researchDuration(research));
+    claimResearch(state, id);
+    assert.equal(visible().includes(id.replace("-ii", "-iii")), true);
+  }
+  state.research.completedIds = [];
   assert.equal(startResearch(state, "tables"), true);
   advanceResearch(state, CONFIG.researchDuration);
   claimResearch(state, "tables");
@@ -92,18 +150,42 @@ test("исследования тиров появляются по цепочк
   assert.equal(researchStatus(state, RESEARCHES.find((research) => research.id === "tables-ii")!), "completed");
 });
 
-test("исследования инфраструктуры появляются по уровням с нужной ценой и временем", () => {
+test("Столики II появляются и доступны только после получения результата Столиков I", () => {
+  const state = researchGame();
+  const second = RESEARCHES.find((item) => item.id === "tables-ii")!;
+  state.money = researchCost(tables) + researchCost(second);
+  const assertHidden = () => {
+    assert.equal(visibleResearches(state).includes(second), false);
+    assert.equal(researchStatus(state, second), "locked");
+    assert.equal(startResearch(state, second.id), false);
+  };
+  assertHidden();
+  assert.equal(startResearch(state, tables.id), true);
+  assertHidden();
+  advanceResearch(state, researchDuration(tables));
+  assertHidden();
+  claimResearch(state, tables.id);
+  assert.equal(visibleResearches(state).includes(second), true);
+  assert.equal(researchStatus(state, second), "available");
+  assert.equal(startResearch(state, second.id), true);
+});
+
+test("исследования инфраструктуры списывают цену, запускают таймер и открывают следующий уровень", () => {
   const state = researchGame();
   state.money = 20_000;
   const visible = () => visibleResearches(state).map((item) => item.id);
   for (const stem of ["dig-wide", "dig-deep"]) {
     assert.equal(visible().includes(stem), true);
     assert.equal(visible().includes(`${stem}-ii`), false);
-    for (const [id, cost, duration, next] of [[stem, 500, 120, `${stem}-ii`], [`${stem}-ii`, 1000, 300, `${stem}-iii`], [`${stem}-iii`, 5000, 600, ""]] as const) {
+    for (const [id, next] of [[stem, `${stem}-ii`], [`${stem}-ii`, `${stem}-iii`], [`${stem}-iii`, ""]] as const) {
       const research = RESEARCHES.find((item) => item.id === id)!;
-      assert.equal(researchCost(research), cost);
-      assert.equal(researchDuration(research), duration);
+      const cost = researchCost(research);
+      const duration = researchDuration(research);
+      state.money = cost - 1;
+      assert.equal(startResearch(state, id), false);
+      state.money = cost;
       assert.equal(startResearch(state, id), true);
+      assert.equal(state.money, 0);
       assert.equal(state.research.active?.remaining, duration);
       advanceResearch(state, duration);
       claimResearch(state, id);
@@ -113,7 +195,7 @@ test("исследования инфраструктуры появляются
 });
 
 test("каждый тип ячейки требует отдельные исследования для перехода во второй и третий тир", () => {
-  const cases: BuildableCellType[] = ["counter", "taps", "table", "waiter-station"];
+  const cases: BuildableCellType[] = ["counter", "taps", "table", "waiter-station", "darts", "billiards", "toilet-stall", "sink", "hand-dryer"];
   for (const type of cases) {
     const state = createGame();
     state.money = 10_000;
@@ -122,15 +204,28 @@ test("каждый тип ячейки требует отдельные исс�
     const second = requiredTierResearchId(type, 10);
     const third = requiredTierResearchId(type, 20);
     assert.ok(second && third);
-    assert.equal(upgradeCell(state, cell.id), false, type);
-    state.research.completedIds.push(second);
-    assert.equal(upgradeCell(state, cell.id), true, type);
+    assert.equal(upgradeCell(state, cell.id).success, false, type);
+    const secondResearch = RESEARCHES.find((item) => item.id === second)!;
+    assert.ok(secondResearch);
+    if (secondResearch.prerequisiteId) state.research.completedIds.push(secondResearch.prerequisiteId);
+    state.unlockedFeatureIds.push("other:research-screen");
+    assert.equal(startResearch(state, second), true, type);
+    advanceResearch(state, researchDuration(secondResearch));
+    claimResearch(state, second);
+    assert.equal(upgradeCell(state, cell.id).success, true, type);
     cell.level = 19;
-    assert.equal(upgradeCell(state, cell.id), false, type);
-    state.research.completedIds.push(third);
-    assert.equal(upgradeCell(state, cell.id), true, type);
-    cell.level = 30;
-    assert.equal(upgradeCell(state, cell.id), false, type);
+    assert.equal(upgradeCell(state, cell.id).success, false, type);
+    const thirdResearch = RESEARCHES.find((item) => item.id === third)!;
+    assert.ok(thirdResearch);
+    assert.equal(visibleResearches(state).includes(thirdResearch), true, type);
+    state.money = researchCost(thirdResearch);
+    assert.equal(startResearch(state, third), true, type);
+    advanceResearch(state, researchDuration(thirdResearch));
+    claimResearch(state, third);
+    state.money = upgradeCostForLevel(cell.level + 1);
+    assert.equal(upgradeCell(state, cell.id).success, true, type);
+    cell.level = CONFIG.maxCellLevel;
+    assert.equal(upgradeCell(state, cell.id).success, false, type);
   }
 });
 

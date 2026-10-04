@@ -1,170 +1,195 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { CONFIG, QUESTS } from "../src/config";
-import {
-  claimQuestReward,
-  createGame,
-  currentQuestProgress,
-  recordCustomerPayment,
-  recordHoldSeconds,
-  recordScreenOpen,
-  isCellTypeUnlocked,
-} from "../src/game";
+import { DECOR_STYLES, DRINKS, QUESTS } from "../src/config";
+import { claimQuestReward, createGame, currentQuestProgress, recordCustomerPayment, recordHoldSeconds, selectDecor, unlockAllDecor } from "../src/game";
+import { customerRate } from "../src/game/economy";
+import { CUSTOMER_TYPES } from "../src/config";
+import type { Cell } from "../src/types";
 
-test("награда не собирается до выполнения, а после сбора открывает следующую фичу", () => {
+function cell(type: Cell["type"], level: number, index = 0): Cell {
+  return { id: String(index), x: index, y: 0, type, level };
+}
+
+for (const [index, quest] of QUESTS.entries()) {
+  const condition = quest.condition;
+  if (condition.kind !== "cell-count" || condition.minLevel === undefined) continue;
+  test(`${quest.id}: учитывает количество и минимальный уровень подходящих построек`, () => {
+    const state = createGame();
+    state.quests.currentIndex = index;
+    const level = condition.minLevel!;
+    const type = condition.cellType ?? "counter";
+    state.cells = Array.from({ length: quest.target }, (_, i) => cell(type, level, i));
+    state.cells[0]!.level = level - 1;
+    state.cells.push(cell("entrance", level), cell("stairs", level));
+    if (condition.cellType) state.cells.push(cell(type === "counter" ? "table" : "counter", level));
+    assert.equal(currentQuestProgress(state)?.current, quest.target - 1);
+    assert.equal(claimQuestReward(state).claimed, false);
+    state.cells[0]!.level = level + 1;
+    assert.equal(currentQuestProgress(state)?.complete, true);
+    const money = state.money;
+    assert.equal(claimQuestReward(state).claimed, true);
+    assert.equal(state.money, money + quest.reward);
+  });
+}
+
+test("любая ячейка: вход и лестницы не учитываются", () => {
   const state = createGame();
-  assert.equal(claimQuestReward(state).claimed, false);
-  state.cells.push({ id: "counter", x: 1, y: 0, type: "counter", level: 1 });
-  const money = state.money;
-
+  state.quests.currentIndex = questIndex("any-cell-twenty");
+  const target = QUESTS[state.quests.currentIndex]!.target;
+  state.cells = [cell("entrance", target), cell("stairs", target), cell("table", target - 1)];
+  assert.equal(currentQuestProgress(state)?.complete, false);
+  state.cells[2]!.level = target;
   assert.equal(currentQuestProgress(state)?.complete, true);
-  assert.equal(state.quests.currentIndex, 0);
+});
+
+test("общий приток складывает открытые типы и не учитывает закрытые", () => {
+  const state = createGame();
+  state.quests.currentIndex = questIndex("total-rate-twelve");
+  state.customerLevels = {};
+  assert.equal(currentQuestProgress(state)?.current, 0);
+  for (const type of CUSTOMER_TYPES.slice(0, 2)) state.customerLevels[type.id] = 1;
+  const expected = CUSTOMER_TYPES.slice(0, 2).reduce((sum, type) => sum + customerRate(state, type), 0);
+  assert.equal(currentQuestProgress(state)?.current, Math.min(expected, QUESTS[state.quests.currentIndex]!.target));
+  for (const type of CUSTOMER_TYPES) state.customerLevels[type.id] = type.maxLevel;
+  assert.equal(currentQuestProgress(state)?.complete, true);
+});
+
+for (const [id, definitions, field] of [
+  ["all-drinks-max", DRINKS, "drinkLevels"],
+  ["all-customers-max", CUSTOMER_TYPES, "customerLevels"],
+] as const) {
+  test(`${id}: требует максимум всех сущностей, включая закрытые`, () => {
+    const state = createGame();
+    state.quests.currentIndex = questIndex(id);
+    state[field] = {};
+    for (const definition of definitions) state[field][definition.id] = definition.maxLevel;
+    for (const definition of definitions) {
+      for (const level of [0, definition.maxLevel - 1]) {
+        state[field][definition.id] = level;
+        assert.equal(currentQuestProgress(state)?.complete, false);
+      }
+      state[field][definition.id] = definition.maxLevel;
+    }
+    assert.equal(currentQuestProgress(state)?.complete, true);
+  });
+}
+
+function questIndex(id: string): number {
+  const index = QUESTS.findIndex((quest) => quest.id === id);
+  assert.ok(index >= 0);
+  return index;
+}
+
+test("декор крана: открытые варианты, классика и декор других ячеек не выполняют задание", () => {
+  const state = createGame();
+  state.quests.currentIndex = questIndex("decorate-taps");
+  state.cells = [cell("taps", 1, 0), cell("taps", 1, 1), cell("counter", 1, 2)];
+  unlockAllDecor(state);
+  const style = DECOR_STYLES.find((candidate) => candidate.id !== "classic")!;
+  selectDecor(state, "1", "classic");
+  selectDecor(state, "2", style.id);
+  assert.equal(currentQuestProgress(state)?.current, 0);
+  assert.equal(claimQuestReward(state).claimed, false);
+});
+
+for (const style of DECOR_STYLES.filter((candidate) => candidate.id !== "classic")) {
+  test(`декор крана: ${style.id} на любом кране выполняет задание, включая выбор заранее`, () => {
+    const state = createGame();
+    state.cells = [cell("taps", 1, 0), cell("taps", 1, 1)];
+    unlockAllDecor(state);
+    assert.equal(selectDecor(state, "1", style.id), true);
+    state.quests.currentIndex = questIndex("decorate-taps");
+    assert.equal(currentQuestProgress(state)?.complete, true);
+    selectDecor(state, "1", "classic");
+    assert.equal(currentQuestProgress(state)?.complete, false);
+    selectDecor(state, "1", style.id);
+    const quest = QUESTS[state.quests.currentIndex]!;
+    const money = state.money;
+    assert.equal(claimQuestReward(state).claimed, true);
+    assert.equal(state.money, money + quest.reward);
+    assert.equal(state.quests.currentIndex, questIndex("build-darts"));
+  });
+}
+
+test("награда выдаёт сумму и разблокировки из конфига только после выполнения цели", () => {
+  const state = createGame();
+  state.quests.currentIndex = questIndex("use-hold");
+  const quest = QUESTS[state.quests.currentIndex]!;
+  const index = state.quests.currentIndex;
+  const money = state.money;
+  const unlocked = new Set(state.unlockedFeatureIds);
+  assert.equal(claimQuestReward(state).claimed, false);
+  assert.equal(state.money, money);
+  recordHoldSeconds(state, quest.target);
   const result = claimQuestReward(state);
   assert.equal(result.claimed, true);
-  assert.deepEqual(result.unlocks.map((feature) => feature.id), ["taps"]);
-  assert.equal(state.money, money + CONFIG.buildCost);
-  assert.equal(state.quests.currentIndex, 1);
-  assert.equal(state.unlockedFeatureIds.includes("cell-type:taps"), true);
-});
-
-test("состояниевые задания учитывают уже достигнутое состояние", () => {
-  const state = createGame();
-  state.quests.currentIndex = 4;
-  state.cells.push({ id: "counter", x: 1, y: 0, type: "counter", level: 2 });
-  assert.deepEqual(currentQuestProgress(state), { quest: QUESTS[4], current: 2, complete: false });
-  state.cells.find((cell) => cell.id === "counter")!.level = 3;
-  assert.deepEqual(currentQuestProgress(state), { quest: QUESTS[4], current: 3, complete: true });
-
-});
-
-test("обслуживание считается только для активного задания и нужного типа клиента", () => {
-  const state = createGame();
-  recordCustomerPayment(state, "sailors");
+  assert.equal(state.money, money + quest.reward);
+  const expected = (quest.unlocks ?? []).filter((feature) => !unlocked.has(`${feature.kind}:${feature.id}`));
+  assert.deepEqual(result.unlocks, expected);
+  for (const feature of expected) assert.ok(state.unlockedFeatureIds.includes(`${feature.kind}:${feature.id}`));
+  assert.equal(state.quests.currentIndex, index + 1);
   assert.equal(state.quests.incrementalProgress, 0);
-
-  state.quests.currentIndex = 3;
-  recordCustomerPayment(state, "clerks");
-  recordCustomerPayment(state, "sailors");
-  recordCustomerPayment(state, "sailors");
-  recordCustomerPayment(state, "sailors");
-  assert.equal(state.quests.incrementalProgress, 2);
-  assert.equal(currentQuestProgress(state)?.complete, true);
-
-  claimQuestReward(state);
-  assert.equal(state.quests.incrementalProgress, 0);
+  assert.equal(claimQuestReward(state).claimed, false);
+  assert.equal(state.money, money + quest.reward);
 });
 
-test("ускорение считает только фактически работающие секунды активного задания", () => {
+test("покупка Бормотухи завершает третье задание", () => {
   const state = createGame();
-  state.quests.currentIndex = 5;
-  recordHoldSeconds(state, 3.25);
-  recordHoldSeconds(state, 8);
-  assert.equal(state.quests.incrementalProgress, 10);
+  state.quests.currentIndex = questIndex("add-mash");
+  assert.equal(currentQuestProgress(state)?.complete, false);
+  state.drinkLevels.mash = QUESTS[state.quests.currentIndex]!.target;
   assert.equal(currentQuestProgress(state)?.complete, true);
-});
-
-test("седьмое задание не открывает лестницу, а восьмое считает ускорение заново", () => {
-  const state = createGame();
-  state.quests.currentIndex = 6;
-  state.cells.push({ id: "taps", x: 1, y: 0, type: "taps", level: 3 });
-  recordHoldSeconds(state, 10);
-  assert.deepEqual(claimQuestReward(state).unlocks, []);
-  assert.equal(state.unlockedFeatureIds.includes("cell-type:stairs"), false);
-  assert.equal(state.quests.currentIndex, 7);
-  assert.deepEqual(currentQuestProgress(state), { quest: QUESTS[7], current: 0, complete: false });
-  recordHoldSeconds(state, 10);
-  assert.equal(currentQuestProgress(state)?.complete, true);
-  const money = state.money;
   assert.equal(claimQuestReward(state).claimed, true);
-  assert.equal(state.money, money + 70);
-  assert.equal(state.quests.currentIndex, 8);
+  assert.equal(state.quests.currentIndex, questIndex("add-mash") + 1);
 });
 
-test("новые задания проверяют рейтинг, число кранов и продажи Лагера", () => {
+test("цели притока матросов зависят от уровня типа", () => {
   const state = createGame();
-  state.quests.currentIndex = 9;
-  state.cells.push({ id: "counter", x: 1, y: 0, type: "counter", level: 8 });
-  assert.equal(currentQuestProgress(state)?.complete, false);
-  state.cells[1]!.level = 9;
-  assert.equal(currentQuestProgress(state)?.complete, true);
-  claimQuestReward(state);
-
-  state.cells.push({ id: "tap-1", x: 2, y: 0, type: "taps", level: 1 });
-  assert.equal(currentQuestProgress(state)?.complete, false);
-  state.cells.push({ id: "tap-2", x: 3, y: 0, type: "taps", level: 1 });
-  assert.deepEqual(claimQuestReward(state).unlocks.map((feature) => feature.id), ["lager"]);
-  assert.equal(state.unlockedFeatureIds.includes("menu-item:lager"), true);
-
-  recordCustomerPayment(state, "sailors", "mash", 5);
-  for (let index = 0; index < 5; index += 1) recordCustomerPayment(state, "sailors", "lager", 10);
-  assert.equal(currentQuestProgress(state)?.complete, true);
-  claimQuestReward(state);
-  assert.equal(state.quests.currentIndex, 12);
-  assert.equal(state.quests.incrementalProgress, 0);
-});
-
-test("заработок считается только после активации задания и открывает экран клиентов", () => {
-  const state = createGame();
-  recordCustomerPayment(state, "sailors", "mash", 100);
-  state.quests.currentIndex = 12;
-  state.money += 1000;
-  assert.equal(currentQuestProgress(state)?.current, 0);
-  recordCustomerPayment(state, "sailors", "mash", 120);
-  recordCustomerPayment(state, "sailors", "mash", 80);
-  assert.equal(currentQuestProgress(state)?.complete, true);
-  assert.deepEqual(claimQuestReward(state).unlocks.map((feature) => feature.id), ["customers-screen"]);
-  assert.equal(isCellTypeUnlocked(state, "stairs"), false);
-});
-
-test("посещение экрана клиентов открывает исследования", () => {
-  const state = createGame();
-  state.quests.currentIndex = 13;
-  recordScreenOpen(state, "customers");
-  assert.equal(currentQuestProgress(state)?.complete, true);
-  assert.deepEqual(claimQuestReward(state).unlocks.map((feature) => feature.id), ["research-screen"]);
-  assert.equal(state.unlockedFeatureIds.includes("other:research-screen"), true);
-  assert.equal(currentQuestProgress(state)?.quest.id, "research-tables");
-  assert.equal(currentQuestProgress(state)?.complete, false);
-  assert.equal(isCellTypeUnlocked(state, "waiter-station"), false);
-  assert.equal(isCellTypeUnlocked(state, "table"), false);
-});
-
-test("исследование столиков завершает новое задание с наградой 50", () => {
-  const state = createGame();
-  state.quests.currentIndex = 14;
-  state.research.completedIds.push("tables");
-  assert.equal(currentQuestProgress(state)?.complete, true);
-  const money = state.money;
-  assert.deepEqual(claimQuestReward(state).unlocks.map((feature) => feature.id), ["stairs"]);
-  assert.equal(state.money, money + 50);
-  assert.equal(isCellTypeUnlocked(state, "stairs"), true);
-  assert.equal(currentQuestProgress(state)?.quest.id, "build-stairs");
-});
-
-test("задания на втором этаже проверяют тип постройки и этаж", () => {
-  const state = createGame();
-  state.quests.currentIndex = 15;
-  state.cells.push({ id: "stairs", x: 0, y: -1, type: "stairs", level: 1 });
-  assert.equal(claimQuestReward(state).claimed, true);
-  for (const [type, id] of [["table", "build-second-floor-table"], ["waiter-station", "build-second-floor-waiter-station"], ["taps", "build-second-floor-taps"]] as const) {
-    assert.equal(currentQuestProgress(state)?.quest.id, id);
-    state.cells.push({ id: `${type}-first`, x: state.cells.length, y: 0, type, level: 1 });
-    assert.equal(currentQuestProgress(state)?.complete, false);
-    state.cells.push({ id: `${type}-second`, x: state.cells.length, y: -1, type, level: 1 });
-    assert.equal(claimQuestReward(state).claimed, true);
+  const sailors = CUSTOMER_TYPES.find((type) => type.id === "sailors")!;
+  for (const [index, quest] of QUESTS.entries()) {
+    if (quest.condition.kind !== "customer-rate" || quest.condition.customerTypeId !== sailors.id) continue;
+    state.quests.currentIndex = index;
+    state.customerLevels.sailors = 0;
+    for (let level = 1; level <= sailors.maxLevel && customerRate(state, sailors) < quest.target; level++) {
+      assert.equal(currentQuestProgress(state)?.complete, false);
+      state.customerLevels.sailors = level;
+    }
+    assert.ok(customerRate(state, sailors) >= quest.target);
+    assert.equal(currentQuestProgress(state)?.complete, true);
   }
-  assert.equal(currentQuestProgress(state)?.quest.id, "serve-clerks");
 });
 
-test("финальная награда завершает цепочку после обслуживания 10 клерков", () => {
+test("Лагер открывается покупкой, а продажи считаются только после активации задания", () => {
   const state = createGame();
-  state.quests.currentIndex = QUESTS.length - 1;
-  assert.equal(currentQuestProgress(state)?.complete, false);
-  recordCustomerPayment(state, "sailors");
-  assert.equal(currentQuestProgress(state)?.current, 0);
-  for (let index = 0; index < 10; index += 1) recordCustomerPayment(state, "clerks");
-  assert.equal(currentQuestProgress(state)?.complete, true);
+  state.quests.currentIndex = questIndex("open-lager");
+  state.drinkLevels.lager = QUESTS[state.quests.currentIndex]!.target;
   assert.equal(claimQuestReward(state).claimed, true);
-  assert.equal(state.quests.currentIndex, QUESTS.length);
-  assert.equal(currentQuestProgress(state), null);
+  recordCustomerPayment(state, "sailors", "mash", 5);
+  const quest = QUESTS[state.quests.currentIndex]!;
+  for (let index = 0; index < quest.target; index += 1) recordCustomerPayment(state, "sailors", "lager", 10);
+  assert.equal(currentQuestProgress(state)?.complete, true);
+  assert.deepEqual(claimQuestReward(state).unlocks, quest.unlocks ?? []);
+});
+
+test("ускорение учитывает только активное задание", () => {
+  const state = createGame();
+  const index = questIndex("use-hold");
+  const target = QUESTS[index]!.target;
+  recordHoldSeconds(state, target);
+  state.quests.currentIndex = index;
+  assert.equal(currentQuestProgress(state)?.current, 0);
+  recordHoldSeconds(state, target);
+  assert.equal(currentQuestProgress(state)?.complete, true);
+});
+
+test("покупка и обслуживание Клерков продвигают цепочку", () => {
+  const state = createGame();
+  state.quests.currentIndex = questIndex("open-clerks");
+  state.customerLevels.clerks = QUESTS[state.quests.currentIndex]!.target;
+  assert.equal(currentQuestProgress(state)?.complete, true);
+  claimQuestReward(state);
+  for (let index = 0; index < QUESTS[state.quests.currentIndex]!.target; index += 1) recordCustomerPayment(state, "clerks");
+  assert.equal(currentQuestProgress(state)?.complete, true);
+  claimQuestReward(state);
+  assert.equal(state.quests.currentIndex, questIndex("serve-clerks") + 1);
 });

@@ -1,47 +1,70 @@
 import { BUILDABLE_CELL_TYPES, CELL_DEFINITIONS, CONFIG, CUSTOMER_TYPES, DRINKS } from "../config";
 import type {
   BuildableCellType,
+  CellUpgradeResult,
   CustomerTypeDefinition,
   GameState,
   RandomSource,
   UnlockFeature,
 } from "../types";
-import { cellQuality, cellsShareRoom, getCell, getDrink, menuCapacity } from "./selectors";
+import { cellsShareRoom, getCell, getDrink } from "./selectors";
+import { customerUpgradeCost, drinkChance, drinkUpgradeCost } from "./economy";
 import { syncPersonnel } from "./personnel";
 import { findRoute } from "./navigation";
 import { movementDuration } from "../geometry";
-import { isCellUpgradeTierUnlocked } from "./tiers";
+import { isCellUpgradeTierUnlocked, requiredTierResearchId } from "./tiers";
+import { unlockRandomDecor } from "./decor";
 import { isFloorWidthBlocked, isNewFloorBlocked } from "./infrastructure";
 
 export function isCustomerTypeUnlocked(state: GameState, type: CustomerTypeDefinition): boolean {
-  const menu = new Set(state.menu);
-  const drinksSatisfied = type.drinkRequirements.every((requirement) => {
-    if (requirement.kind === "specific") return menu.has(requirement.drinkId);
-    return DRINKS.some(
-      (drink) =>
-        menu.has(drink.id) &&
-        drink.category === requirement.category &&
-        drink.rating >= requirement.min &&
-        drink.rating <= requirement.max,
-    );
-  });
-  if (!drinksSatisfied) return false;
-
-  for (const requirement of type.qualityRequirements) {
-    const cells = state.cells.filter((cell) => cell.type === requirement.cellType);
-    if (cells.length === 0) return false;
-    const averageQuality = cells.reduce((sum, cell) => sum + cellQuality(cell.level), 0) / cells.length;
-    if (averageQuality + Number.EPSILON < requirement.minimum) return false;
-  }
-  return true;
+  if (type.id === "sailors" || state.everUnlockedCustomerTypeIds.includes(type.id)) return true;
+  const requirement = type.requirement;
+  if (!requirement) return true;
+  if (requirement.kind === "drink-level") return (state.drinkLevels[requirement.drinkId] ?? 0) >= requirement.level;
+  if (requirement.kind === "cell") return state.cells.some((cell) => cell.type === requirement.cellType);
+  return requirement.cellTypes.every((cellType) => state.cells.some((cell) => cell.type === cellType));
 }
 
 export function unlockedByType(state: GameState): Record<string, boolean> {
   return Object.fromEntries(CUSTOMER_TYPES.map((type) => [type.id, isCustomerTypeUnlocked(state, type)]));
 }
 
+export function syncCustomerUnlocks(state: GameState): UnlockFeature[] {
+  const unlocked: UnlockFeature[] = [];
+  for (const type of CUSTOMER_TYPES) {
+    if (state.everUnlockedCustomerTypeIds.includes(type.id) || !isCustomerTypeUnlocked(state, type)) continue;
+    state.everUnlockedCustomerTypeIds.push(type.id);
+    unlocked.push({ kind: "customer-type", id: type.id, name: type.name });
+  }
+  return unlocked;
+}
+
 export function isDrinkUnlocked(state: GameState, drinkId: string): boolean {
-  return state.unlockedFeatureIds.includes(`menu-item:${drinkId}`);
+  return (state.drinkLevels[drinkId] ?? 0) > 0;
+}
+
+export function upgradeDrink(state: GameState, drinkId: string): boolean {
+  const drink = getDrink(drinkId);
+  if (!drink || !state.unlockedFeatureIds.includes("other:menu-screen")) return false;
+  const nextLevel = (state.drinkLevels[drinkId] ?? 0) + 1;
+  if (nextLevel > drink.maxLevel) return false;
+  const cost = drinkUpgradeCost(drink, nextLevel);
+  if (state.money < cost) return false;
+  state.money -= cost;
+  state.drinkLevels[drinkId] = nextLevel;
+  return true;
+}
+
+export function upgradeCustomerType(state: GameState, typeId: string): boolean {
+  const type = CUSTOMER_TYPES.find((item) => item.id === typeId);
+  if (!type || !state.unlockedFeatureIds.includes("other:customers-screen") || !isCustomerTypeUnlocked(state, type)) return false;
+  const nextLevel = (state.customerLevels[typeId] ?? 0) + 1;
+  if (nextLevel > type.maxLevel) return false;
+  const cost = customerUpgradeCost(type, nextLevel);
+  if (state.money < cost) return false;
+  state.money -= cost;
+  state.customerLevels[typeId] = nextLevel;
+  return true;
 }
 
 export function isCellTypeUnlocked(state: GameState, type: BuildableCellType): boolean {
@@ -51,21 +74,14 @@ export function isCellTypeUnlocked(state: GameState, type: BuildableCellType): b
 export function unlockFeature(state: GameState, feature: UnlockFeature): boolean {
   const featureId = `${feature.kind}:${feature.id}`;
   if (state.unlockedFeatureIds.includes(featureId)) return false;
-  if (feature.kind === "menu-item") {
-    if (!DRINKS.some((drink) => drink.id === feature.id)) return false;
-  }
   if (feature.kind === "cell-type") {
     if (!BUILDABLE_CELL_TYPES.includes(feature.id)) return false;
   }
   state.unlockedFeatureIds.push(featureId);
-  if (feature.kind === "menu-item" || (feature.kind === "other" && feature.id === "research-screen")) {
+  if (feature.kind === "other" && feature.id === "research-screen") {
     state.unseenUnlockIds.push(featureId);
   }
   return true;
-}
-
-export function acknowledgeMenuUnlocks(state: GameState): void {
-  state.unseenUnlockIds = state.unseenUnlockIds.filter((id) => !id.startsWith("menu-item:"));
 }
 
 export function acknowledgeResearchScreenUnlock(state: GameState): void {
@@ -82,24 +98,8 @@ export function unlockRandomLockedCellType(state: GameState, random: RandomSourc
 }
 
 export function eligibleOrderIds(state: GameState, type: CustomerTypeDefinition): string[] {
-  const ids = new Set<string>();
-  for (const requirement of type.drinkRequirements) {
-    if (requirement.kind === "specific") {
-      if (state.menu.includes(requirement.drinkId)) ids.add(requirement.drinkId);
-      continue;
-    }
-    for (const drink of DRINKS) {
-      if (
-        state.menu.includes(drink.id) &&
-        drink.category === requirement.category &&
-        drink.rating >= requirement.min &&
-        drink.rating <= requirement.max
-      ) {
-        ids.add(drink.id);
-      }
-    }
-  }
-  return [...ids];
+  void type;
+  return DRINKS.filter((drink) => isDrinkUnlocked(state, drink.id)).map((drink) => drink.id);
 }
 
 export function chooseOrderId(
@@ -108,7 +108,13 @@ export function chooseOrderId(
   random: RandomSource,
 ): string | null {
   const ids = eligibleOrderIds(state, type);
-  return ids.length > 0 ? ids[Math.floor(random() * ids.length)] ?? ids[0] ?? null : null;
+  if (ids.length === 0) return null;
+  let roll = random() * 100;
+  for (const id of ids) {
+    roll -= drinkChance(state, getDrink(id)!);
+    if (roll < 0) return id;
+  }
+  return ids[ids.length - 1] ?? null;
 }
 
 export function buildCell(state: GameState, x: number, type: BuildableCellType, y = 0): boolean {
@@ -122,7 +128,7 @@ export function buildCell(state: GameState, x: number, type: BuildableCellType, 
   if (type === "stairs" ? x !== 0 || y >= 0 || !stairSupport : x <= 0 || !horizontalNeighbor) return false;
   if (state.money < CONFIG.buildCost) return false;
   state.money -= CONFIG.buildCost;
-  state.cells.push({ id: `cell-${state.nextEntityId++}`, x, y, type, level: 1 });
+  state.cells.push({ id: `cell-${state.nextEntityId++}`, x, y, type, level: 1, ...(type !== "stairs" ? { decorId: "classic" as const } : {}) });
   state.cells.sort((a, b) => a.y - b.y || a.x - b.x);
   syncPersonnel(state);
   return true;
@@ -344,108 +350,37 @@ export function removeCell(state: GameState, cellId: string): boolean {
   for (const bartender of state.bartenders) compactCharacterRoute(state, bartender, cell.y, cell.x, bartender.speedFactor);
   for (const waiter of state.waiters) compactCharacterRoute(state, waiter, cell.y, cell.x);
   state.cells.sort((a, b) => a.y - b.y || a.x - b.x);
-  for (const category of new Set(DRINKS.map((drink) => drink.category))) {
-    while (state.menu.filter((id) => getDrink(id)?.category === category).length > menuCapacity(state, category)) {
-      const lastSelected = [...state.menu].reverse().find((id) => getDrink(id)?.category === category);
-      if (!lastSelected) break;
-      toggleMenuItem(state, lastSelected);
-    }
-  }
   state.money += cellRefund(cell.level);
   syncPersonnel(state);
   reconcileStaffRooms(state);
   return true;
 }
 
-export function upgradeCell(state: GameState, cellId: string): boolean {
+export function upgradeCell(state: GameState, cellId: string, random: RandomSource = Math.random): CellUpgradeResult {
+  const failed: CellUpgradeResult = { success: false, unlocks: [] };
   const cell = state.cells.find((candidate) => candidate.id === cellId);
-  if (!cell || cell.type === "entrance" || cell.type === "stairs" || cell.level >= CONFIG.maxCellLevel) return false;
-  if (!isCellUpgradeTierUnlocked(state, cell.type, cell.level + 1)) return false;
+  if (!cell || cell.type === "entrance" || cell.type === "stairs" || cell.level >= CONFIG.maxCellLevel) return failed;
+  if (!isCellUpgradeTierUnlocked(state, cell.type, cell.level + 1)) return failed;
   const cost = upgradeCostForLevel(cell.level + 1);
-  if (state.money < cost) return false;
+  if (state.money < cost) return failed;
   state.money -= cost;
   cell.level += 1;
   syncPersonnel(state);
-  return true;
+  const unlock = requiredTierResearchId(cell.type, cell.level) ? unlockRandomDecor(state, cell.type, random) : null;
+  return { success: true, unlocks: unlock ? [unlock] : [] };
 }
 
 export function upgradeCostForLevel(level: number): number {
-  return CONFIG.upgradeCost + CONFIG.upgradeCostIncrease * (level - 1);
+  const tier = level < 10 ? 1 : level < 20 ? 2 : 3;
+  return Math.ceil((CONFIG.cellUpgradeCostBase + level ** CONFIG.cellUpgradeCostStep) * tier);
 }
 
 export function cellRefund(level: number): number {
-  const upgrades = level - 1;
-  return CONFIG.buildCost + upgrades * CONFIG.upgradeCost + CONFIG.upgradeCostIncrease * upgrades * (upgrades + 1) / 2;
-}
-
-export function toggleMenuItem(state: GameState, drinkId: string): boolean {
-  const drink = getDrink(drinkId);
-  if (!drink) return false;
-  const index = state.menu.indexOf(drinkId);
-  if (index < 0 && !isDrinkUnlocked(state, drinkId)) return false;
-  if (index >= 0) {
-    state.menu.splice(index, 1);
-    for (const customer of state.customers) {
-      const orderCompleted = [
-        "moving-table",
-        "waiting-table",
-        "drinking",
-        "exiting",
-      ].includes(customer.phase);
-      if (customer.orderId === drinkId && !orderCompleted) {
-        const wasMoving = customer.phase.startsWith("moving-");
-        customer.phase = "exiting";
-        customer.targetCellId = "cell-0";
-        customer.slotIndex = null;
-        customer.bartenderId = null;
-        customer.waiterId = null;
-        if (wasMoving) {
-          customer.movePath = findRoute(state, customer.moveTargetX, customer.moveTargetY, 0, 0)
-            .slice(1)
-            .map(({ x, y }) => ({ x, y }));
-          customer.moveEndLocalX = .5;
-          continue;
-        }
-        const atCell = state.cells.some((cell) => cell.x === customer.x && cell.y === customer.y);
-        const anchorX = atCell ? customer.x : customer.moveTargetX;
-        const anchorY = atCell ? customer.y : customer.moveTargetY;
-        const route = findRoute(state, anchorX, anchorY, 0, 0).map(({ x, y }) => ({ x, y }));
-        if (atCell) route.shift();
-        const next = route.shift() ?? { x: 0, y: 0 };
-        customer.moveFromX = customer.x;
-        customer.moveFromY = customer.y;
-        customer.moveTargetX = next.x;
-        customer.moveTargetY = next.y;
-        customer.moveFromLocalX = customer.localX ?? .5;
-        customer.moveTargetLocalX = .5;
-        customer.moveEndLocalX = .5;
-        customer.moveDuration = movementDuration(
-          state,
-          customer.x,
-          customer.y,
-          next.x,
-          next.y,
-          customer.moveFromLocalX,
-          customer.moveTargetLocalX,
-        );
-        customer.movePath = route;
-        customer.phaseRemaining = customer.moveDuration;
-      }
-    }
-    for (const bartender of state.bartenders) {
-      const customer = state.customers.find((item) => item.id === bartender.customerId);
-      if (!customer || customer.phase === "exiting") resetBartender(bartender);
-    }
-    for (const waiter of state.waiters) {
-      const customer = state.customers.find((item) => item.id === waiter.customerId);
-      if (!customer || customer.phase === "exiting") resetWaiter(waiter);
-    }
-  } else {
-    const selected = state.menu.filter((id) => getDrink(id)?.category === drink.category).length;
-    if (selected >= menuCapacity(state, drink.category)) return false;
-    state.menu.push(drinkId);
+  let refund = CONFIG.buildCost;
+  for (let purchasedLevel = 2; purchasedLevel <= level; purchasedLevel += 1) {
+    refund += upgradeCostForLevel(purchasedLevel);
   }
-  return true;
+  return refund;
 }
 
 export function resetWaiter(waiter: GameState["waiters"][number]): void {

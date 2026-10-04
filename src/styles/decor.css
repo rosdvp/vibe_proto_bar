@@ -1,0 +1,16 @@
+.decor-panel { position: absolute; left: 12px; right: 12px; bottom: 14px; height: 36%; min-height: 180px; max-height: 46%; pointer-events: auto; }
+.decor-panel .panel-title { top: -40px; left: 20%; right: 20%; height: 40px; border-color: var(--ui-outline); border-bottom: 0; border-radius: 6px 6px 0 0; background: var(--ui-wood); }
+.decor-panel .panel-title h2 { font-size: 22px; }
+.decor-close { position: absolute; right: 0; top: -48px; }
+.decor-list { height: 100%; overflow-y: auto; padding: 18px 12px 18px 32px; border: 4px solid var(--ui-outline); border-radius: 6px; background: var(--ui-surface); box-shadow: inset 0 0 0 1px #75634a, 0 5px 0 rgb(0 0 0 / 32%); scrollbar-width: none; touch-action: pan-y; overscroll-behavior-y: contain; }
+.decor-list::-webkit-scrollbar { display: none; }
+.decor-option { position: relative; width: 100%; min-height: 76px; margin: 7px 0 23px; padding: 12px 24px 12px 63px; display: flex; align-items: center; text-align: left; border: 4px solid var(--ui-outline); border-radius: 7px; background: var(--ui-surface); color: var(--ui-text); }
+.decor-option:last-child { margin-bottom: 7px; }
+.decor-option strong { font-size: 20px; }
+.decor-option:disabled { opacity: 1; cursor: default; }
+.decor-panel .decor-option:disabled { background: var(--ui-inset) !important; border-color: var(--muted) !important; }
+.decor-option.decor-current { border-color: var(--green); box-shadow: 0 0 0 2px var(--green); }
+.decor-avatar { position: absolute; left: -25px; width: 78px; height: 78px; display: grid; place-items: center; }
+.decor-avatar > .entity-icon, .decor-avatar > .lock-icon { width: 100%; height: 100%; }
+.decor-option .attention-indicator { right: 5px; top: 5px; }
+.cell-actions button { position: relative; }
