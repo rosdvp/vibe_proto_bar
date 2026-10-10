@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { CONFIG } from "../src/config";
+import { CONFIG, CUSTOMER_TYPES } from "../src/config";
 import { advanceGame, buildCell, cellCapacity, createGame, createNewGamePlus, takePaymentEvents, upgradeCell } from "../src/game";
+import { customerPriceMultiplier } from "../src/game/economy";
 import { cellBonusPercent, equipmentIssue, levelBonusPercent, workSpeedBonusPercent } from "../src/game/selectors";
 import type { BuildableCellType, Customer, GameState } from "../src/types";
 import { fixedRandom } from "./support";
@@ -86,7 +87,7 @@ test("дартс и бильярд оплачиваются после испо�
   const money = state.money;
   advanceGame(state, CONFIG.extraUseSeconds.darts + CONFIG.extraUseSeconds.billiards + 10, fixedRandom(0));
   assert.deepEqual(customer.visitedExtras, ["darts", "billiards"]);
-  const prices = [darts, billiards].map((cell) => Math.floor(CONFIG.extraPrice[cell.type as keyof typeof CONFIG.extraPrice] * (1 + levelBonusPercent(cell.level, CONFIG.extraPriceBonusPercentRange) / 100) + 1e-9));
+  const prices = [darts, billiards].map((cell) => Math.floor(levelBonusPercent(cell.level, CONFIG.extraIncomeRanges[cell.type as "darts" | "billiards"]) * (1 + customerPriceMultiplier(state, CUSTOMER_TYPES.find((type) => type.id === customer.typeId)!) / 100) + 1e-9));
   assert.deepEqual(takePaymentEvents(state).map((event) => event.amount), prices);
   assert.equal(state.money - money, prices.reduce((sum, price) => sum + price, 0));
 });
@@ -107,6 +108,37 @@ for (const type of ["toilet-stall", "darts", "billiards"] as const) {
       assert.deepEqual(customer.visitedExtras, freePlace ? [activity] : []);
       if (freePlace) assert.equal(customer.activity, activity);
       else assert.equal(customer.phase, "exiting");
+    });
+  }
+}
+
+for (const activity of ["darts", "billiards"] as const) {
+  for (const isPrize of [false, true]) {
+    test(`${activity}: оплата учитывает клиента и не зависит от напитка и других ячеек (призовой: ${isPrize})`, () => {
+      const state = setup(activity);
+      const type = CUSTOMER_TYPES[0]!;
+      state.customerLevels[type.id] = isPrize ? 0 : type.maxLevel;
+      const equipment = state.cells.find((cell) => cell.type === activity)!;
+      equipment.level = 7;
+      const customer = drinkingCustomer(state);
+      Object.assign(customer, {
+        typeId: type.id, isPrize, phase: "using-extra", phaseRemaining: .01,
+        activity, targetCellId: equipment.id, visitedExtras: [activity],
+      });
+      const bonus = customerPriceMultiplier(state, type, isPrize ? 1 : type.maxLevel);
+      const expected = Math.floor(levelBonusPercent(equipment.level, CONFIG.extraIncomeRanges[activity]) * (1 + bonus / 100) + 1e-9);
+      const payments: number[] = [];
+      for (const unrelatedLevel of [1, CONFIG.maxCellLevel]) {
+        const scenario = structuredClone(state);
+        scenario.drinkLevels.mash = unrelatedLevel;
+        for (const cell of scenario.cells) if (cell.id !== equipment.id) cell.level = unrelatedLevel;
+        const before = scenario.money;
+        advanceGame(scenario, .02, fixedRandom(1));
+        const events = takePaymentEvents(scenario);
+        assert.deepEqual(events.map((event) => event.amount), [expected]);
+        payments.push(scenario.money - before);
+      }
+      assert.deepEqual(payments, [expected, expected]);
     });
   }
 }

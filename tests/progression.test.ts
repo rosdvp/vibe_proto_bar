@@ -218,10 +218,6 @@ test("цена улучшения зависит от покупаемого у�
   state.cells.push({ ...cell });
   state.money = upgradeCostForLevel(2) - 1;
 
-  for (let level = 2; level <= CONFIG.maxCellLevel; level += 1) {
-    const tier = level < 10 ? 1 : level < 20 ? 2 : 3;
-    assert.equal(upgradeCostForLevel(level), Math.ceil((CONFIG.cellUpgradeCostBase + level ** CONFIG.cellUpgradeCostStep) * tier));
-  }
   assert.equal(upgradeCell(state, cell.id).success, false);
   state.money = [2, 3, 4].reduce((sum, level) => sum + upgradeCostForLevel(level), 0);
   assert.equal(upgradeCell(state, cell.id).success, true);

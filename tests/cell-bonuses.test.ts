@@ -26,10 +26,10 @@ test("скорость использует диапазон бонуса ско
 });
 
 for (const type of ["darts", "billiards"] as const) {
-  test(`${type}: цена применяет бонус уровня и округляется вниз`, () => {
+  test(`${type}: доход интерполируется без промежуточного округления`, () => {
     for (let level = 1; level <= CONFIG.maxCellLevel; level++) {
       const cell = { id: "extra", type, level, x: 0, y: 0 };
-      const expected = Math.floor(CONFIG.extraPrice[type] * (1 + levelBonusPercent(level, CONFIG.extraPriceBonusPercentRange) / 100) + 1e-9);
+      const expected = levelBonusPercent(level, CONFIG.extraIncomeRanges[type]);
       assert.equal(extraUsePrice(cell), expected);
     }
   });

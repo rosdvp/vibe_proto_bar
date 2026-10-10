@@ -32,6 +32,20 @@ for (const [index, quest] of QUESTS.entries()) {
   });
 }
 
+test("уровень крана: учитывает любой кран и выдаёт награду после достижения цели", () => {
+  const state = createGame();
+  state.quests.currentIndex = questIndex("taps-five");
+  const quest = QUESTS[state.quests.currentIndex]!;
+  state.cells = [cell("taps", quest.target - 1, 0), cell("taps", 1, 1), cell("counter", quest.target, 2)];
+  assert.equal(currentQuestProgress(state)?.complete, false);
+  assert.equal(claimQuestReward(state).claimed, false);
+  state.cells[1]!.level = quest.target;
+  assert.equal(currentQuestProgress(state)?.complete, true);
+  const money = state.money;
+  assert.equal(claimQuestReward(state).claimed, true);
+  assert.equal(state.money, money + quest.reward);
+});
+
 test("любая ячейка: вход и лестницы не учитываются", () => {
   const state = createGame();
   state.quests.currentIndex = questIndex("any-cell-twenty");
@@ -107,7 +121,7 @@ for (const style of DECOR_STYLES.filter((candidate) => candidate.id !== "classic
     const money = state.money;
     assert.equal(claimQuestReward(state).claimed, true);
     assert.equal(state.money, money + quest.reward);
-    assert.equal(state.quests.currentIndex, questIndex("build-darts"));
+    assert.equal(state.quests.currentIndex, questIndex("decorate-taps") + 1);
   });
 }
 

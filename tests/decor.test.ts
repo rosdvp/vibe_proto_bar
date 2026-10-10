@@ -61,14 +61,11 @@ test("новая игра и новая игра+ начинают с класс
 });
 
 for (const type of DECOR_CELL_TYPES) {
-  test(`${type}: переходы тира разных ячеек открывают стили без повторов`, () => {
+  test(`${type}: пороги уровня открывают случайные стили без повторов`, () => {
     const { state, first, second } = prepared(type);
-    const before = state.decor[type].unlockedIds.length;
-    first.level = 8;
-    assert.deepEqual(upgradeCell(state, first.id, fixedRandom()), { success: true, unlocks: [] });
-    assert.equal(state.decor[type].unlockedIds.length, before);
-    for (const [cell, level] of [[first, 9], [first, 19], [second, 9]] as const) {
-      cell.level = level;
+    for (const [index, level] of CONFIG.decorUnlockLevels.entries()) {
+      const cell = index % 2 === 0 ? first : second;
+      cell.level = level - 1;
       const previous = [...state.decor[type].unlockedIds];
       const result = upgradeCell(state, cell.id, fixedRandom(.99));
       assert.equal(result.success, true);
@@ -82,8 +79,33 @@ for (const type of DECOR_CELL_TYPES) {
       if (feature.kind === "decor") assert.equal(feature.cellType, type);
     }
     assert.equal(state.decor[type].unlockedIds.length, DECOR_STYLES.length);
-    second.level = 19;
-    assert.deepEqual(upgradeCell(state, second.id, fixedRandom()), { success: true, unlocks: [] });
+  });
+
+  test(`${type}: повторное достижение порога другой ячейкой не выдаёт декор`, () => {
+    const { state, first, second } = prepared(type);
+    for (const level of CONFIG.decorUnlockLevels) {
+      first.level = level - 1;
+      assert.equal(upgradeCell(state, first.id, fixedRandom()).unlocks.length, 1);
+      acknowledgeDecorButton(state, type);
+      acknowledgeDecorItems(state, type);
+      const before = structuredClone(state.decor);
+      second.level = level - 1;
+      assert.deepEqual(upgradeCell(state, second.id, fixedRandom()), { success: true, unlocks: [] });
+      assert.deepEqual(state.decor, before);
+    }
+  });
+
+  test(`${type}: улучшения между порогами не открывают декор`, () => {
+    const { state, first } = prepared(type);
+    for (let level = first.level + 1; level <= CONFIG.maxCellLevel; level += 1) {
+      const before = structuredClone(state.decor);
+      const result = upgradeCell(state, first.id, fixedRandom());
+      assert.equal(result.success, true);
+      if (!CONFIG.decorUnlockLevels.some((threshold) => threshold === level)) {
+        assert.deepEqual(result.unlocks, []);
+        assert.deepEqual(state.decor, before);
+      }
+    }
   });
 }
 
@@ -98,16 +120,16 @@ test("случайный выбор использует весь список �
 
 test("недостаток денег не меняет уровень и не выдаёт декор", () => {
   const { state, first } = prepared();
-  first.level = 9;
+  first.level = CONFIG.decorUnlockLevels[0]! - 1;
   state.money = upgradeCostForLevel(first.level + 1) - 1;
   const before = structuredClone(state);
   assert.deepEqual(upgradeCell(state, first.id), { success: false, unlocks: [] });
   assert.deepEqual(state, before);
 });
 
-test("без исследования перехода тира декор не выдаётся", () => {
+test("без исследования превышения лимита улучшение не меняет состояние", () => {
   const { state, first } = prepared();
-  first.level = 9;
+  first.level = CONFIG.cellResearchLevelLimits[0];
   state.research.completedIds = state.research.completedIds.filter((id) => id !== requiredTierResearchId(first.type as DecorCellType, first.level + 1));
   const before = structuredClone(state);
   assert.deepEqual(upgradeCell(state, first.id), { success: false, unlocks: [] });
@@ -179,6 +201,32 @@ test("перемещение сохраняет выбор, удаление с�
   assert.equal(state.cells.find((cell) => cell.x === 2 && cell.y === 0)?.decorId, "classic");
 });
 
+
+test("удаление ячейки и загрузка не позволяют повторно получить награду порога", () => {
+  const { state, first, second } = prepared();
+  const level = CONFIG.decorUnlockLevels[0]!;
+  first.level = level - 1;
+  const unlock = upgradeCell(state, first.id, fixedRandom()).unlocks[0]!;
+  assert.equal(removeCell(state, first.id), true);
+  const loaded = roundTrip(state);
+  const remaining = loaded.cells.find((cell) => cell.id === second.id)!;
+  remaining.level = level - 1;
+  const before = structuredClone(loaded.decor);
+  assert.deepEqual(upgradeCell(loaded, remaining.id, fixedRandom()), { success: true, unlocks: [] });
+  assert.deepEqual(loaded.decor, before);
+  assert.ok(loaded.decor.counter.unlockedIds.some((id) => id === unlock.id));
+});
+
+test("служебная разблокировка исключает награды на всех порогах", () => {
+  const { state, first } = prepared();
+  unlockAllDecor(state);
+  const before = structuredClone(state.decor);
+  for (const level of CONFIG.decorUnlockLevels) {
+    first.level = level - 1;
+    assert.deepEqual(upgradeCell(state, first.id, fixedRandom()), { success: true, unlocks: [] });
+    assert.deepEqual(state.decor, before);
+  }
+});
 
 test("максимальный уровень не выдаёт новые варианты", () => {
   const { state, first } = prepared();

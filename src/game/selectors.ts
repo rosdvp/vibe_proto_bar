@@ -74,7 +74,7 @@ export function workSpeedBonusPercent(level: number): number {
 
 export function extraUsePrice(cell: Cell): number {
   if (cell.type !== "darts" && cell.type !== "billiards") return 0;
-  return Math.floor(CONFIG.extraPrice[cell.type] * (1 + levelBonusPercent(cell.level, CONFIG.extraPriceBonusPercentRange) / 100) + 1e-9);
+  return levelBonusPercent(cell.level, CONFIG.extraIncomeRanges[cell.type]);
 }
 
 export function milestoneValue(level: number, values: readonly [number, number, number, number]): number {

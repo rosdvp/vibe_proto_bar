@@ -1,3 +1,4 @@
+import { CONFIG } from "../config";
 import type { BuildableCellType, GameState } from "../types";
 
 const TIER_RESEARCH_IDS: Record<Exclude<BuildableCellType, "stairs">, readonly [string, string]> = {
@@ -14,18 +15,25 @@ const TIER_RESEARCH_IDS: Record<Exclude<BuildableCellType, "stairs">, readonly [
 
 export function requiredTierResearchId(type: BuildableCellType, nextLevel: number): string | null {
   if (type === "stairs") return null;
-  if (nextLevel === 10) return TIER_RESEARCH_IDS[type][0];
-  if (nextLevel === 20) return TIER_RESEARCH_IDS[type][1];
+  if (nextLevel === CONFIG.cellResearchLevelLimits[0] + 1) return TIER_RESEARCH_IDS[type][0];
+  if (nextLevel === CONFIG.cellResearchLevelLimits[1] + 1) return TIER_RESEARCH_IDS[type][1];
   return null;
 }
 
 export function isCellUpgradeTierUnlocked(state: GameState, type: BuildableCellType, nextLevel: number): boolean {
-  const researchId = requiredTierResearchId(type, nextLevel);
+  const researchId = type === "stairs" ? null : nextLevel > CONFIG.cellResearchLevelLimits[1]
+    ? TIER_RESEARCH_IDS[type][1]
+    : nextLevel > CONFIG.cellResearchLevelLimits[0] ? TIER_RESEARCH_IDS[type][0] : null;
   return researchId === null || state.research.completedIds.includes(researchId);
 }
 
 export function tierProgressPercent(level: number): number {
-  const start = level < 10 ? 1 : level < 20 ? 10 : 20;
-  const end = level < 10 ? 9 : level < 20 ? 19 : 30;
+  const index = cellTierIndex(level);
+  const start = CONFIG.cellTierStartLevels[index];
+  const end = index === 2 ? CONFIG.maxCellLevel : CONFIG.cellTierStartLevels[index + 1]! - 1;
   return (level - start) / (end - start) * 100;
+}
+
+export function cellTierIndex(level: number): 0 | 1 | 2 {
+  return level < CONFIG.cellTierStartLevels[1] ? 0 : level < CONFIG.cellTierStartLevels[2] ? 1 : 2;
 }

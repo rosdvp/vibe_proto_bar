@@ -13,7 +13,7 @@ import type {
 } from "../types";
 import { findRoute } from "./navigation";
 import { chooseOrderId, reconcileStaffRooms, resetBartender, resetWaiter } from "./progression";
-import { customerRate, orderPrice, totalCustomerRate } from "./economy";
+import { customerPriceMultiplier, customerRate, orderPrice, totalCustomerRate } from "./economy";
 import { recordCustomerPayment, recordActivityIncome } from "./quests";
 import {
   cellCapacity,
@@ -466,7 +466,9 @@ function finishExtraStage(state: GameState, customer: Customer, random: RandomSo
       if (startPrimaryAgain(state, customer, random)) return;
     }
   } else if ((cell?.type === "darts" || cell?.type === "billiards") && customer.activity === cell.type) {
-    const amount = extraUsePrice(cell);
+    const type = getCustomerType(customer.typeId);
+    const bonus = type ? customerPriceMultiplier(state, type, customer.isPrize ? Math.max(1, state.customerLevels[type.id] ?? 0) : undefined) : 0;
+    const amount = Math.floor(extraUsePrice(cell) * (1 + bonus / 100) + 1e-9);
     state.money += amount;
     recordActivityIncome(state, amount);
     const events = paymentEvents.get(state) ?? [];

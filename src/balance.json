@@ -6,11 +6,14 @@
     "serviceMoneyGrant": 1000,
     "buildCost": 100,
     "cellUpgradeCostBase": 30,
-    "cellUpgradeCostStep": 3,
+    "cellUpgradeCostStep": 2.7,
+    "cellUpgradeTierMultipliers": [1, 1.3, 1.5],
+    "cellResearchLevelLimits": [10, 20, 30],
+    "cellTierStartLevels": [1, 10, 20],
     "cellBonusPercentRange": { "min": 0, "max": 116 },
     "tableOrderPriceBonusPercentRange": { "min": 30, "max": 160 },
     "workSpeedBonusPercentRange": { "min": 0, "max": 87 },
-    "extraPriceBonusPercentRange": { "min": 0, "max": 145 },
+    "extraIncomeRanges": { "darts": { "min": 50, "max": 150 }, "billiards": { "min": 100, "max": 200 } },
     "maxCellLevel": 30,
     "characterMoveSpeed": 150,
     "listenDuration": 5,
@@ -319,6 +322,26 @@
       }
     },
     {
+      "id": "taps-five",
+      "title": "Прокачай любой кран до уровня 5",
+      "target": 5,
+      "reward": 50,
+      "condition": {
+        "kind": "cell-level",
+        "cellType": "taps"
+      }
+    },
+    {
+      "id": "decorate-taps",
+      "title": "Установи декор на кран",
+      "target": 1,
+      "reward": 50,
+      "condition": {
+        "kind": "cell-decor",
+        "cellType": "taps"
+      }
+    },
+    {
       "id": "open-lager",
       "title": "Разблокируй Лагер",
       "target": 1,
@@ -548,46 +571,6 @@
       "reward": 300,
       "condition": {
         "kind": "total-customer-rate"
-      }
-    },
-    {
-      "id": "taps-nine",
-      "title": "Прокачай любой кран до ур. 9",
-      "target": 9,
-      "reward": 300,
-      "condition": {
-        "kind": "cell-level",
-        "cellType": "taps"
-      }
-    },
-    {
-      "id": "research-taps-ii",
-      "title": "Открой «Краны II»",
-      "target": 1,
-      "reward": 300,
-      "condition": {
-        "kind": "research-completed",
-        "researchId": "taps-ii"
-      }
-    },
-    {
-      "id": "taps-ten",
-      "title": "Прокачай любой кран до ур. 10",
-      "target": 10,
-      "reward": 200,
-      "condition": {
-        "kind": "cell-level",
-        "cellType": "taps"
-      }
-    },
-    {
-      "id": "decorate-taps",
-      "title": "Установи декор на кране",
-      "target": 1,
-      "reward": 200,
-      "condition": {
-        "kind": "cell-decor",
-        "cellType": "taps"
       }
     },
     {

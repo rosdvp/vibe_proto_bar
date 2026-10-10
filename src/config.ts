@@ -9,7 +9,8 @@ import type {
 import balance from "./balance.json";
 
 export const CONFIG = {
-  saveVersion: 19,
+  saveVersion: 20,
+  decorUnlockLevels: [5, 15, 30],
   offerCooldown: 60,
   offerAdMultiplier: 5,
   offerMoneyBaseMultiplier: 0.5,
@@ -18,7 +19,6 @@ export const CONFIG = {
   offerRevealDuration: 0.3,
   offerSpinSymbolDuration: 0.06,
   extraUseSeconds: { "toilet-stall": 20, sink: 10, "hand-dryer": 10, darts: 30, billiards: 30 },
-  extraPrice: { darts: 10, billiards: 20 },
   extraChanceFree: 0.5,
   saveKey: "speakeasy-cellar-save",
   paymentPopupDuration: 1.1,
@@ -110,6 +110,9 @@ export const CONFIG = {
   cellLevelBottomOffset: 0,
   customerPathTop: 107,
   ...balance.parameters,
+  cellTierStartLevels: balance.parameters.cellTierStartLevels as [number, number, number],
+  cellResearchLevelLimits: balance.parameters.cellResearchLevelLimits as [number, number, number],
+  cellUpgradeTierMultipliers: balance.parameters.cellUpgradeTierMultipliers as [number, number, number],
 } as const;
 
 export const CELL_DEFINITIONS: Record<

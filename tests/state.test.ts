@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { BUILDABLE_CELL_TYPES, CONFIG, QUESTS } from "../src/config";
+import { BUILDABLE_CELL_TYPES, CONFIG, DECOR_STYLES, QUESTS } from "../src/config";
 import { workSpeedBonusPercent } from "../src/game/selectors";
 import { buildCell, createGame, createNewGamePlus, loadGame, saveGame, syncPersonnel, unlockFeature } from "../src/game";
 
@@ -94,11 +94,13 @@ test("несовместимая версия сохранения сбрасы�
   assert.equal(loaded.money, CONFIG.startingMoney);
 });
 
-test("сохранение прежней версии сбрасывается после изменения цепочки заданий", () => {
+test("сохранение прежней версии сбрасывается после изменения правил декора", () => {
   const previous = { ...createGame(), saveVersion: CONFIG.saveVersion - 1, money: 777 };
+  previous.decor.counter.unlockedIds = DECOR_STYLES.map((style) => style.id);
   const loaded = loadGame({ getItem: () => JSON.stringify(previous) });
   assert.equal(loaded.money, CONFIG.startingMoney);
   assert.equal(loaded.quests.currentIndex, 0);
+  assert.deepEqual(loaded.decor, createGame().decor);
 });
 
 test("поврежденное сохранение текущей версии сбрасывается", () => {

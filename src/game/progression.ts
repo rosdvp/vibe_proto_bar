@@ -12,7 +12,7 @@ import { customerUpgradeCost, drinkChance, drinkUpgradeCost } from "./economy";
 import { syncPersonnel } from "./personnel";
 import { findRoute } from "./navigation";
 import { movementDuration } from "../geometry";
-import { isCellUpgradeTierUnlocked, requiredTierResearchId } from "./tiers";
+import { cellTierIndex, isCellUpgradeTierUnlocked } from "./tiers";
 import { unlockRandomDecor } from "./decor";
 import { isFloorWidthBlocked, isNewFloorBlocked } from "./infrastructure";
 
@@ -366,12 +366,14 @@ export function upgradeCell(state: GameState, cellId: string, random: RandomSour
   state.money -= cost;
   cell.level += 1;
   syncPersonnel(state);
-  const unlock = requiredTierResearchId(cell.type, cell.level) ? unlockRandomDecor(state, cell.type, random) : null;
+  const nextDecorLevel = CONFIG.decorUnlockLevels[state.decor[cell.type].unlockedIds.length - 1];
+  const unlock = cell.level === nextDecorLevel ? unlockRandomDecor(state, cell.type, random) : null;
   return { success: true, unlocks: unlock ? [unlock] : [] };
 }
 
 export function upgradeCostForLevel(level: number): number {
-  const tier = level < 10 ? 1 : level < 20 ? 2 : 3;
+  const tierIndex = cellTierIndex(level);
+  const tier = CONFIG.cellUpgradeTierMultipliers[tierIndex];
   return Math.ceil((CONFIG.cellUpgradeCostBase + level ** CONFIG.cellUpgradeCostStep) * tier);
 }
 

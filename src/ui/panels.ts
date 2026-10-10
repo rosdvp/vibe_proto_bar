@@ -128,7 +128,7 @@ function levelEffects(cell: Cell): string {
   if (cell.type === "waiter-station") return `<span><b>+${speed}%</b> к скорости официанта</span>`;
   if (cell.type === "toilet-stall" || cell.type === "sink" || cell.type === "hand-dryer") return `<span><b>+${formatDecimalDown(cellBonusPercent(cell.level, cell.type))}%</b> к шансу повторного заказа</span><span><b>+${speed}%</b> к скорости использования</span>`;
   if (cell.type === "darts" || cell.type === "billiards") {
-    const amount = extraUsePrice(cell);
+    const amount = formatDecimalDown(extraUsePrice(cell));
     return `<span><b>${colorDot("money")}${amount}</b> с клиента</span><span><b>+${speed}%</b> к скорости использования</span>`;
   }
   return "";

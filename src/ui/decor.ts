@@ -1,4 +1,4 @@
-import { DECOR_STYLES } from "../config";
+import { CONFIG, DECOR_STYLES } from "../config";
 import { acknowledgeDecorButton, acknowledgeDecorItems, isDecorCellType } from "../game/decor";
 import type { GameState } from "../types";
 import type { UiState } from "./types";
@@ -27,16 +27,19 @@ export function renderDecorPanel(state: GameState, ui: UiState): string {
   const cell = state.cells.find((candidate) => candidate.id === ui.decorCellId);
   if (!cell || !isDecorCellType(cell.type)) return "";
   const decor = state.decor[cell.type];
+  const unlockedStyles = DECOR_STYLES.filter((style) => decor.unlockedIds.includes(style.id));
+  const lockedStyles = DECOR_STYLES.filter((style) => !decor.unlockedIds.includes(style.id));
+  const styles = [...unlockedStyles, ...lockedStyles];
   return `<div class="focus-hud decor-focus"><div class="focus-cell-frame"></div>
     <section class="decor-panel" aria-label="Декор">
       <div class="panel-title"><h2>Декор</h2></div>
       <button class="square-close decor-close" data-action="close-decor" aria-label="Закрыть декор">${uiIcon("close")}</button>
-      <div class="decor-list" data-scroll-key="decor-${cell.id}">${DECOR_STYLES.map((style) => {
+      <div class="decor-list" data-scroll-key="decor-${cell.id}">${styles.map((style, index) => {
         const unlocked = decor.unlockedIds.includes(style.id);
         const current = (cell.decorId ?? "classic") === style.id;
         return `<button class="decor-option ${current ? "decor-current" : ""}" data-action="select-decor" data-decor-id="${style.id}" ${unlocked ? `aria-pressed="${current}"` : "disabled"}>
           <span class="decor-avatar">${unlocked ? decorIcon(style.id) : lockIcon()}</span>
-          <strong>${unlocked ? style.name : "Еще не открыто"}</strong>
+          <strong>${unlocked ? style.name : `Откроется на ур. ${CONFIG.decorUnlockLevels[index - 1]}`}</strong>
           ${decor.unseenIds.includes(style.id) ? attentionIndicator() : ""}
         </button>`;
       }).join("")}</div>

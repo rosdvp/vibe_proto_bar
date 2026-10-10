@@ -298,6 +298,30 @@ test("offer reels move between app renders and finish without replacing the dial
 });
 
 
+for (const unlockedIds of [[], ["japan"], ["cabaret"], ["japan", "cabaret"],
+  DECOR_STYLES.filter((style) => style.id !== "classic").map((style) => style.id).reverse()]) {
+  test(`панель декора сортирует открытые стили и показывает оставшиеся пороги: ${unlockedIds.join(",") || "только классика"}`, () => {
+    const state = createGame();
+    state.cells.push({ id: "decor-cell", x: 1, y: 0, type: "counter", level: 1, decorId: "classic" });
+    for (const id of unlockedIds) {
+      const locked = DECOR_STYLES.filter((style) => !state.decor.counter.unlockedIds.includes(style.id));
+      const index = locked.findIndex((style) => style.id === id);
+      assert.equal(unlockRandomDecor(state, "counter", fixedRandom((index + .5) / locked.length))?.id, id);
+    }
+    const ui = createUiState();
+    ui.decorCellId = "decor-cell";
+    const element = root();
+    patchHtml(element, decorUi.renderDecorPanel(state, ui));
+    const opened = DECOR_STYLES.filter((style) => state.decor.counter.unlockedIds.includes(style.id));
+    const locked = DECOR_STYLES.filter((style) => !state.decor.counter.unlockedIds.includes(style.id));
+    const rows = [...element.querySelectorAll<HTMLButtonElement>(".decor-option")];
+    assert.deepEqual(rows.map((row) => row.dataset.decorId), [...opened, ...locked].map((style) => style.id));
+    assert.deepEqual(rows.filter((row) => !row.disabled).map((row) => row.querySelector("strong")?.textContent), opened.map((style) => style.name));
+    assert.deepEqual(rows.filter((row) => row.disabled).map((row) => row.querySelector("strong")?.textContent),
+      CONFIG.decorUnlockLevels.slice(opened.length - 1).map((level) => `Откроется на ур. ${level}`));
+  });
+}
+
 test("панель декора заменяет карточку и возвращается к ней с выбранной мебелью", () => {
   const element = root();
   const state = createGame();

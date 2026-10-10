@@ -199,11 +199,12 @@ test("каждый тип ячейки требует отдельные исс�
   for (const type of cases) {
     const state = createGame();
     state.money = 10_000;
-    const cell = { id: type, x: 1, y: 0, type, level: 9 };
+    const cell = { id: type, x: 1, y: 0, type, level: CONFIG.cellResearchLevelLimits[0] - 1 };
     state.cells.push(cell);
-    const second = requiredTierResearchId(type, 10);
-    const third = requiredTierResearchId(type, 20);
+    const second = requiredTierResearchId(type, CONFIG.cellResearchLevelLimits[0] + 1);
+    const third = requiredTierResearchId(type, CONFIG.cellResearchLevelLimits[1] + 1);
     assert.ok(second && third);
+    assert.equal(upgradeCell(state, cell.id).success, true, type);
     assert.equal(upgradeCell(state, cell.id).success, false, type);
     const secondResearch = RESEARCHES.find((item) => item.id === second)!;
     assert.ok(secondResearch);
@@ -213,7 +214,10 @@ test("каждый тип ячейки требует отдельные исс�
     advanceResearch(state, researchDuration(secondResearch));
     claimResearch(state, second);
     assert.equal(upgradeCell(state, cell.id).success, true, type);
-    cell.level = 19;
+    cell.level = CONFIG.cellResearchLevelLimits[1] - 1;
+    state.money = upgradeCostForLevel(cell.level + 1);
+    assert.equal(upgradeCell(state, cell.id).success, true, type);
+    state.money = upgradeCostForLevel(cell.level + 1);
     assert.equal(upgradeCell(state, cell.id).success, false, type);
     const thirdResearch = RESEARCHES.find((item) => item.id === third)!;
     assert.ok(thirdResearch);
@@ -230,5 +234,5 @@ test("каждый тип ячейки требует отдельные исс�
 });
 
 test("прогресс уровня сбрасывается в начале каждого тира", () => {
-  assert.deepEqual([1, 9, 10, 19, 20, 30].map(tierProgressPercent), [0, 100, 0, 100, 0, 100]);
+  assert.deepEqual([CONFIG.cellTierStartLevels[0], CONFIG.cellTierStartLevels[1] - 1, CONFIG.cellTierStartLevels[1], CONFIG.cellTierStartLevels[2] - 1, CONFIG.cellTierStartLevels[2], CONFIG.maxCellLevel].map(tierProgressPercent), [0, 100, 0, 100, 0, 100]);
 });
