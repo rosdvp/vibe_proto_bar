@@ -18,7 +18,7 @@
     "drinkDuration": 30,
     "customerWaitingTimeout": 20,
     "customerWaitingMoveSpeed": 25,
-    "holdEnergyCapacity": 350,
+    "holdEnergyCapacity": 400,
     "holdEnergySpendTick": 0.1,
     "holdEnergyRechargeAmount": 1,
     "holdEnergyRechargeInterval": 10,
